@@ -100,7 +100,7 @@ button{cursor:pointer}button:not(.g){box-shadow:inset 0 1px 0 #ffffff2e}
 <button id="go">Forge Undead</button><p class="s" id="fmsg" style="margin:6px 0 0">Forging costs 1 of the chosen profession and 1 of the body type (Nobody and Human Cadaver are unlimited).</p>
 </div>
 <div id="tu" hidden>
-<h2 style="margin-top:6px">Your Undead</h2><div id="col"></div>
+<h2 style="margin-top:6px">Your Undead</h2><button id="autoeq" class="g" style="font-size:13px;padding:8px 12px">⚙ Auto equip</button><p class="s" id="aemsg" style="margin:6px 0 4px"></p><div id="col"></div>
 <div id="out"></div>
 
 </div>
@@ -1273,6 +1273,27 @@ function place(){const x=$("xsetup"),c=$("locs").querySelector('[data-l="'+LOC+'
 locs=function(){const x=$("xsetup");if(x.parentNode&&x.parentNode.id=="locs")$("tw").insertBefore(x,$("bt"));const r=L0.apply(this,arguments);place();return r};
 $("locs").addEventListener("click",e=>{if(e.target.closest("[data-l]"))setTimeout(()=>{try{$("xsetup").scrollIntoView({block:"nearest",behavior:"smooth"})}catch(er){}},60)});
 locs()})();
+
+/* ===== Auto equip: best unequipped gear into every empty slot, for all undead ===== */
+function aeScore(i,s){const hand=s.indexOf("hand")==0,mb=i.mb!=null?.5:0;
+ if(i.t=="Weapon"){const w=wt(i);return hand?1000+(i.v+Math.floor(w/2))*10-w+mb:0}
+ if(i.t=="Consumable")return i.rar*100+i.v;
+ return i.v+mb+i.rar*.01}
+function autoEquip(){const pairs=[];
+ col.forEach(c=>{const E=EQ[c.id]||{},M=c.mut;for(const s in SL){
+  if(s=="implant"&&c.b!="Cybernetic Human")continue;if(/2$/.test(s)&&c.b!="Amalgamation")continue;
+  if(s=="head"&&(c.b=="Spewer"||c.b=="Caller"))continue;if(M&&(s==M.arm||s=="chest"))continue;
+  if(E[s]&&item(E[s]))continue;pairs.push({c,s})}});
+ const free=INV.filter(i=>i.t!="Junk"&&!worn(i.id)),cand=[];
+ pairs.forEach((p,pi)=>free.forEach(i=>{if(ok(p.s,i,p.c)&&!(i.t=="Weapon"&&p.s.indexOf("hand")!=0))cand.push({p,pi,i,sc:aeScore(i,p.s)})}));
+ cand.sort((x,y)=>y.sc-x.sc||x.pi-y.pi);
+ const ui=new Set,up=new Set,who=new Set;let n=0;
+ for(const x of cand){if(ui.has(x.i.id)||up.has(x.pi))continue;ui.add(x.i.id);up.add(x.pi);equip(x.p.c.id,x.p.s,x.i.id);who.add(x.p.c.id);n++}
+ return{n,u:who.size}}
+$("autoeq").onclick=()=>{const r=autoEquip(),m=$("aemsg");
+ m.textContent=!col.length?"Forge an undead first.":r.n?"Equipped "+r.n+" item"+(r.n==1?"":"s")+" on "+r.u+" undead.":"Nothing to equip: no empty slot has a matching unequipped item.";
+ try{list();pup()}catch(e){}
+ if(typeof pick!=="undefined"&&pick&&col.includes(pick)&&$("out").innerHTML.trim()){const on=$("out").querySelector(".tabs .on");showCard(pick,on&&on.dataset.v||"s")}};
 /* ===== Save / Load between versions ===== */
 (function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd"];
 const g=id=>document.getElementById(id),msg=t=>{g("svMsg").textContent=t};let pend=null;
