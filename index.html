@@ -105,11 +105,13 @@ button{cursor:pointer}button:not(.g){box-shadow:inset 0 1px 0 #ffffff2e}
 
 </div>
 <div id="tw" hidden>
-<h2 style="margin-top:6px">Expedition location</h2><div id="locs"></div><select id="ar" hidden></select><p id="ard" hidden></p>
-<label>Expedition length</label><select id="ln"><option value="3">Short: 3 waves</option><option value="5" selected>Standard: 5 waves</option><option value="8">Long: 8 waves</option><option value="99">Endless (retreat to end)</option></select>
-<label>Risk: <span id="rkv">Safe</span></label><input type="range" id="rk" min="0" max="2" step="1" value="0" style="padding:0"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut)"><span>Safe</span><span>Threatening</span><span>Deadly</span></div><p class="s" id="rkd" style="margin:6px 0 0"></p>
-<h2>Party (up to 3)</h2><p class="s" id="pty" style="margin:6px 0 0"></p><div id="pl"></div><button class="g" id="pclr">Clear party</button>
-<button id="fight">⚔ Start expedition</button>
+<div id="xpick"><h2 style="margin-top:6px">Expedition location</h2><div id="locs"></div><select id="ar" hidden></select><p id="ard" hidden></p></div>
+<div id="xsetup" class="card" style="margin-top:8px;border-color:var(--acc)"><b>Expedition setup</b>
+<label>Waves</label><select id="ln"><option value="3">Short: 3 waves</option><option value="5" selected>Standard: 5 waves</option><option value="8">Long: 8 waves</option><option value="99">Endless (retreat to end)</option></select>
+<label>Difficulty: <span id="rkv">Safe</span></label><input type="range" id="rk" min="0" max="2" step="1" value="0" style="padding:0"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut)"><span>Safe</span><span>Threatening</span><span>Deadly</span></div><p class="s" id="rkd" style="margin:6px 0 0"></p>
+<p class="s" id="pty" style="margin:12px 0 0"></p>
+<details id="xparty" style="margin-top:6px"><summary style="cursor:pointer;font-size:13px;color:var(--mut)">Choose party (up to 3)</summary><div id="pl"></div><button class="g" id="pclr">Clear party</button></details>
+<button id="fight" style="margin-top:12px">⚔ Set off</button></div>
 <div id="bt"></div>
 </div>
 <div id="ts" hidden></div>
@@ -712,8 +714,8 @@ const bgNote=c=>c.bg?`<div class="card" style="margin-top:8px"><b>Backstory</b><
 const mutNote=c=>c.b=="Husk"?'<p class="s">🧟 Husk: ×0.7 HP, 1 less natural armor, and it gets back up one round after falling (100%, then 50%, then 25% per expedition).</p>':c.b=="Spewer"?'<p class="s">🧪 Spewer: ×1.15 HP, 1 less natural armor on every limb, no head pieces, and acidic and protective spews.</p>':c.b=="Caller"?'<p class="s">📯 Caller: no head pieces. Calls hordes down on the enemy, and natural horde events turn on the enemies instead of your party.</p>':c.b=="Brute"?'<p class="s">🪓 Brute: +3 damage, no firearms, a 20% chance each turn to frenzy and attack at random, and a free second swing at 60% damage when dual wielding melee weapons.</p>':c.b=="Titan"?'<p class="s">🗿 Titan: ×1.9 total HP, but enemies hit 10% more often.</p>':c.b=="Amalgamation"?'<p class="s">🧟 Amalgamation: extra arms, hands and legs plus a second chest slot, but enemies hit 20% more often.</p>':c.b=="Cybernetic Human"?'<p class="s">⚙ Cybernetic frame: +1 armor on every limb and an Implant slot.</p>':c.mut?`<p class="s">🧬 Permanent mutations: ${RN[c.mut.lr||1]} ${MN[c.mut.limb]} limb on the ${c.mut.arm=="handL"?"left":"right"} arm, ${RN[c.mut.tr||1]} ${MN[c.mut.torso]} torso. Upgrade them in the Body tab with junk.</p>`:"";
 function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI()}
 $("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);
-$("fight").onclick=()=>{if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();$("bt").scrollIntoView({behavior:"smooth"})};
-$("bt").onclick=e=>{if(e.target.id=="again")return start();if(!S||S.over)return;if(e.target.closest("[data-use]")){useCons();return}const ua=e.target.closest("[data-ua]");if(ua&&alive(S.U[+ua.dataset.ua])){S.ally=+ua.dataset.ua;return bt()}if(e.target.closest("[data-auto]")){S.auto=AUTO=!S.auto;return bt()}if(e.target.closest("[data-snx]")){SND=!SND;try{localStorage.setItem("ufsnd",SND?"1":"0")}catch(x){}if(SND)aud();return bt()}if(e.target.closest("[data-ret]")){clearTimeout(AT);return endExp("Retreated")}const lp=e.target.closest("[data-lp]");if(lp){const ee=+lp.dataset.le,q=lp.dataset.lp;if(!dead(S.N[ee].E)&&S.N[ee].E[q].h>0){S.tg={e:ee,p:q};bt()}return}const t=e.target.closest("[data-t]");if(t&&!t.disabled){S.tg.p=t.dataset.t;return bt()}
+$("fight").onclick=()=>{if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();xView(false)};
+$("bt").onclick=e=>{if(e.target.id=="again")return xBack();if(!S||S.over)return;if(e.target.closest("[data-use]")){useCons();return}const ua=e.target.closest("[data-ua]");if(ua&&alive(S.U[+ua.dataset.ua])){S.ally=+ua.dataset.ua;return bt()}if(e.target.closest("[data-auto]")){S.auto=AUTO=!S.auto;return bt()}if(e.target.closest("[data-snx]")){SND=!SND;try{localStorage.setItem("ufsnd",SND?"1":"0")}catch(x){}if(SND)aud();return bt()}if(e.target.closest("[data-ret]")){clearTimeout(AT);return endExp("Retreated")}const lp=e.target.closest("[data-lp]");if(lp){const ee=+lp.dataset.le,q=lp.dataset.lp;if(!dead(S.N[ee].E)&&S.N[ee].E[q].h>0){S.tg={e:ee,p:q};bt()}return}const t=e.target.closest("[data-t]");if(t&&!t.disabled){S.tg.p=t.dataset.t;return bt()}
 const b=e.target.closest(".sb");if(b){if(!b.disabled)act(+b.dataset.i);return}
 const d=e.target.closest("[data-e]");if(d&&!dead(S.N[+d.dataset.e].E)){S.tg={e:+d.dataset.e,p:"chest"};bt()}};
 for(const k in AR)$("ar").add(new Option(AR[k].n,k));$("ar").onchange=()=>{$("ard").textContent=AR[$("ar").value].d};$("ar").onchange();
@@ -1262,6 +1264,15 @@ if(mlsHeading)mlsHeading.insertAdjacentElement('beforebegin',mlsHero);
 bti();list();
 
 
+
+/* ===== Expedition setup flow: pick location, set waves/difficulty under it, Set off -> combat ===== */
+function xView(setup){$("xpick").hidden=!setup;$("xsetup").hidden=!setup;if(setup)$("bt").innerHTML="";try{$("tw").scrollIntoView({block:"start"});window.scrollTo({top:0,behavior:"smooth"})}catch(e){}}
+function xBack(){xView(true);locs();pup()}
+(function(){const L0=locs;
+function place(){const x=$("xsetup"),c=$("locs").querySelector('[data-l="'+LOC+'"]');if(c&&!AR[LOC].off)c.insertAdjacentElement("afterend",x)}
+locs=function(){const x=$("xsetup");if(x.parentNode&&x.parentNode.id=="locs")$("tw").insertBefore(x,$("bt"));const r=L0.apply(this,arguments);place();return r};
+$("locs").addEventListener("click",e=>{if(e.target.closest("[data-l]"))setTimeout(()=>{try{$("xsetup").scrollIntoView({block:"nearest",behavior:"smooth"})}catch(er){}},60)});
+locs()})();
 /* ===== Save / Load between versions ===== */
 (function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd"];
 const g=id=>document.getElementById(id),msg=t=>{g("svMsg").textContent=t};let pend=null;
