@@ -1200,7 +1200,6 @@ function mlsDecorated(name,original,decorate){return function(...args){const res
 // Original game logic is untouched. These wrappers add presentation after each render.
 render=mlsDecorated('render',render,()=>{});
 const mlsOriginalRender=render;
-render=(c)=>mlsOriginalRender(c).replace('<div class="card">','<div class="card mls-portrait-card">'+mlsImg(mlsBody(c.b),'mls-profile-portrait',c.b+' character'));
 list=mlsDecorated('list',list,()=>{
  const nodes=$('col').querySelectorAll('.mini[data-i]');
  nodes.forEach(el=>{const c=col[Number(el.dataset.i)];if(c)el.insertAdjacentHTML('afterbegin',mlsImg(mlsBody(c.b),'mls-thumb',c.b+' portrait'))});
@@ -1208,8 +1207,12 @@ list=mlsDecorated('list',list,()=>{
 bti=mlsDecorated('bti',bti,()=>{
  const el=$('bti').querySelector('.card');if(el)el.insertAdjacentHTML('afterbegin',mlsImg(mlsBody($('b').value),'mls-feature',$('b').value+' body type'));
 });
-showCard=mlsDecorated('showCard',showCard,(c)=>{
- const div=$('out').querySelector('.tabs');if(div&&!$('out').querySelector('.mls-profile-portrait'))div.insertAdjacentHTML('afterend',mlsImg(mlsBody(c.b),'mls-profile-portrait',c.b+' undead portrait'));
+showCard=mlsDecorated('showCard',showCard,(c,v)=>{
+ if(v!=='p')return;
+ const o=$('out');if(o.querySelector('.mls-profile-portrait')||c.img)return;
+ const p=[...o.querySelectorAll('.card p.s')].find(x=>x.textContent.trim()==='No image yet.');
+ if(p)p.insertAdjacentHTML('beforebegin',mlsImg(mlsBody(c.b),'mls-profile-portrait',c.b+' default art').replace('<img ','<img style="width:100%;max-width:240px;height:auto;margin:10px auto;object-fit:contain" '));
+ if(p)p.textContent='Default body-type art. Upload an image to replace it.';
 });
 morge=mlsDecorated('morge',morge,()=>{
  const cards=$('tmo').querySelectorAll('.card');
