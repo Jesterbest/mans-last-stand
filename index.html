@@ -100,7 +100,7 @@ button{cursor:pointer}button:not(.g){box-shadow:inset 0 1px 0 #ffffff2e}
 <button id="go">Forge Undead</button><p class="s" id="fmsg" style="margin:6px 0 0">Forging costs 1 of the chosen profession and 1 of the body type (Nobody and Human Cadaver are unlimited).</p>
 </div>
 <div id="tu" hidden>
-<h2 style="margin-top:6px">Your Undead</h2><button id="autoeq" class="g" style="font-size:13px;padding:8px 12px">⚙ Auto equip</button><p class="s" id="aemsg" style="margin:6px 0 4px"></p><div id="col"></div>
+<h2 style="margin-top:6px">Your Undead</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0"><button id="autoup" class="g" style="font-size:13px;padding:8px 12px">⬆ Auto upgrade</button><button id="autoupx" class="g" hidden style="font-size:13px;padding:8px 12px">Cancel</button></div><button id="autoeq" class="g" style="font-size:13px;padding:8px 12px;margin-top:6px">⚙ Auto equip</button><p class="s" id="aemsg" style="margin:6px 0 4px"></p><div id="col"></div>
 <div id="out"></div>
 
 </div>
@@ -1294,6 +1294,36 @@ $("autoeq").onclick=()=>{const r=autoEquip(),m=$("aemsg");
  m.textContent=!col.length?"Forge an undead first.":r.n?"Equipped "+r.n+" item"+(r.n==1?"":"s")+" on "+r.u+" undead.":"Nothing to equip: no empty slot has a matching unequipped item.";
  try{list();pup()}catch(e){}
  if(typeof pick!=="undefined"&&pick&&col.includes(pick)&&$("out").innerHTML.trim()){const on=$("out").querySelector(".tabs .on");showCard(pick,on&&on.dataset.v||"s")}};
+
+/* ===== Auto upgrade: spend junk on equipped gear and mutations, cheapest rarity first ===== */
+let AUP=null;
+function aupPlan(){const junk=INV.filter(i=>i.t=="Junk").map(i=>i.rar).sort((x,y)=>x-y),C=[],pri={Weapon:0,Armor:1,Gear:3,Implant:4};
+ col.forEach(c=>{const E=EQ[c.id]||{};Object.values(E).forEach(id=>{const i=item(id);if(i&&i.t!="Junk"&&i.t!="Consumable"&&i.rar<5)C.push({k:"i",id:i.id,r:i.rar,p:pri[i.t]??5,n:lab(i)+" ("+c.name+")"})});
+  if(c.mut){[["limb","lr"],["torso","tr"]].forEach(([w,key])=>{const r=c.mut[key]||1;if(r<5)C.push({k:"m",c:c.id,w,r,p:2,n:"mutated "+w+" ("+c.name+")"})})}});
+ const steps=[];let spent=0;
+ for(;;){let best=null;for(const x of C){if(x.r>=5)continue;if(!best||x.r<best.r||x.r==best.r&&x.p<best.p)best=x}
+  if(!best)break;const cost=UC[best.r],pool=junk.filter(r=>r>=best.r);if(pool.length<cost)break;
+  let left=cost;for(let j=0;j<junk.length&&left>0;){if(junk[j]>=best.r){junk.splice(j,1);left--}else j++}
+  spent+=cost;best.r++;steps.push(best)}
+ return{steps,spent}}
+function aupRun(steps){let ni=0,nm=0;
+ for(const x of steps){if(x.k=="i"){const it=item(x.id);if(!it||it.rar>=5)continue;const cost=UC[it.rar],J=INV.filter(i=>i.t=="Junk"&&i.rar>=it.rar).sort((a,b)=>a.rar-b.rar).slice(0,cost);if(J.length<cost)continue;
+   INV=INV.filter(i=>!J.includes(i));it.rar++;it.v=vOf(it);if(it.rar==5)it.mb=Math.floor(Math.random()*MB.length);ni++}
+  else{const c=col.find(q=>q.id==x.c);if(!c||!c.mut)continue;const key=x.w=="torso"?"tr":"lr",b4=c.mut[key]||1;mupg(c,x.w);if((c.mut[key]||1)>b4)nm++}}
+ sv();save();return{ni,nm}}
+function aupReset(){AUP=null;$("autoup").textContent="⬆ Auto upgrade";$("autoup").className="g";$("autoupx").hidden=true}
+function aeRefresh(){try{list();pup()}catch(e){}if(typeof pick!=="undefined"&&pick&&col.includes(pick)&&$("out").innerHTML.trim()){const on=$("out").querySelector(".tabs .on");showCard(pick,on&&on.dataset.v||"s")}}
+$("autoupx").onclick=()=>{aupReset();$("aemsg").textContent="Auto upgrade cancelled."};
+$("autoup").onclick=()=>{const m=$("aemsg");
+ if(AUP){const r=aupRun(AUP.steps);aupReset();m.textContent="Upgraded "+r.ni+" item"+(r.ni==1?"":"s")+(r.nm?" and "+r.nm+" mutation"+(r.nm==1?"":"s"):"")+".";aeRefresh();try{if(!$("ts").hidden)inv()}catch(e){}return}
+ const p=aupPlan();
+ if(!col.length){m.textContent="Forge an undead first.";return}
+ if(!p.steps.length){m.textContent="Nothing to upgrade: no equipped item or mutation can be upgraded with your current junk.";return}
+ AUP=p;const cnt={};p.steps.forEach(x=>cnt[x.n]=(cnt[x.n]||0)+1);
+ const list=Object.entries(cnt).slice(0,6).map(([n,c])=>n+(c>1?" ×"+c:"")).join("; ")+(Object.keys(cnt).length>6?"; …":"");
+ m.textContent=p.steps.length+" upgrade"+(p.steps.length==1?"":"s")+" for "+p.spent+" junk (lowest-rarity junk is used first): "+list+". Press Confirm to spend the junk.";
+ $("autoup").textContent="✔ Confirm: spend "+p.spent+" junk";$("autoup").className="";$("autoupx").hidden=false};
+$("autoeq").addEventListener("click",()=>{if(AUP)aupReset()},true);
 /* ===== Save / Load between versions ===== */
 (function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd"];
 const g=id=>document.getElementById(id),msg=t=>{g("svMsg").textContent=t};let pend=null;
