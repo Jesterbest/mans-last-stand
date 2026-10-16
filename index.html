@@ -642,6 +642,7 @@ function bonus(u){const b={d:0,a:0,h:0,w:0,hit:0,crit:0,rg:0,cl:0,mask:0,gg:0,hw
 if(m){const lr=m.lr||1,tr=m.tr||1;if(m.limb=="pierce")b.d+=1+lr;if(m.limb=="block"){b.a+=2+lr;b.p.arms+=2+lr}if(m.limb=="cleave")b.cl+=.4+.1*lr;if(m.torso=="pierce")b.d+=1+tr;if(m.torso=="block"){b.a+=2+tr;b.p.chest+=2+tr}if(m.torso=="cleave")b.cl+=.4+.1*tr;
 [m.lb,m.tb].forEach(x=>{if(x!=null){const f=MB[x];if(f.k=="p"){PT.forEach(p=>b.p[p]+=f.v);b.a+=f.v}else b[f.k]+=f.v}})}
 for(const s in EQ[u]||{}){const i=item(EQ[u][s]);if(!i)continue;if(i.mb!=null){const f=MB[i.mb];if(f.k=="p"){PT.forEach(p=>b.p[p]+=f.v);b.a+=f.v}else b[f.k]+=f.v}if(i.t=="Weapon"){b.d+=i.v+Math.floor(wt(i)/2);b.w+=wt(i);if(wt(i)>=4)b.hw=1}if(i.t=="Armor"){b.a+=i.v;b.p[s=="legs2"&&sysOf(cc.b)=="Quadruped"?"arms":PS[i.s]]+=i.v}if(i.t=="Implant"){const k=IM[i.n][0];if(k=="p"){PT.forEach(p=>b.p[p]+=i.v);b.a+=i.v}else b[k]+=i.v}if(i.t=="Gear"&&SLG[i.n]){const g=SLG[i.n];if(g.k=="p"){PT.forEach(p=>b.p[p]+=i.v);b.a+=i.v}else b[g.k]+=i.v}else if(i.t=="Gear"){if(i.n=="Night Goggles"){b.hit+=5*i.v;b.gg=1}else b.h+=i.v;if(i.n=="Gas Mask")b.mask=1}}return b}
+let AEQ_MSG="";
 const nat=(x,y,w,h,r=6)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="var(--card)" stroke="var(--fg)" stroke-width="1.2" stroke-dasharray="3 3"/>`;
 function animSvg(sy,st){const V='viewBox="0 0 260 300" style="width:100%;max-height:330px"';
 if(sy=="quad"){const mu='fill="var(--mut)" stroke="none"',pw=(x)=>`<rect x="${x}" y="244" width="30" height="20" rx="9" ${st("feet")}/>`;
@@ -650,7 +651,7 @@ if(sy=="wing")return `<svg ${V}><circle cx="130" cy="42" r="24" ${st("head")}/><
 return `<svg ${V}><circle cx="46" cy="150" r="28" ${st("head")}/><circle cx="38" cy="142" r="3" fill="var(--fg)"/><rect x="70" y="124" width="100" height="52" rx="26" ${st("chest")}/><rect x="168" y="134" width="70" height="32" rx="16" fill="var(--card)" stroke="var(--fg)" stroke-width="1.2" stroke-dasharray="3 3"/><rect x="92" y="104" width="50" height="16" rx="5" ${st("back")}/><rect x="96" y="180" width="44" height="12" rx="4" ${st("hip")}/><rect x="146" y="180" width="16" height="12" rx="4" ${st("cons")}/></svg>`}
 function body(c){const M=c.mut,lk=s=>M&&(s==M.arm||s=="chest"),hand=(s,x)=>M&&M.arm==s?(M.limb=="cleave"?`<polygon points="${x-18},164 ${x+18},176 ${x+8},212 ${x-8},212" ${st(s)}/>`:M.limb=="pierce"?`<polygon points="${x},160 ${x+12},210 ${x-12},210" ${st(s)}/>`:`<rect x="${x-18}" y="170" width="36" height="34" rx="6" ${st(s)}/>`):`<circle cx="${x}" cy="188" r="15" ${st(s)}/>`,E=EQ[c.id]||{},w=s=>E[s]&&item(E[s]),
 st=s=>`fill="${w(s)||lk(s)?"var(--acc)":"var(--card)"}" fill-opacity="${w(s)||lk(s)?.55:1}" ${lk(s)?'stroke-dasharray="4 3"':""} stroke="${sel==s?"var(--acc)":"var(--fg)"}" stroke-width="${sel==s?3:1.2}" data-slot="${s}"`,b=bonus(c.id);
-const sy=sysKey(c.b);let h=`<div class="card">${sy&&sy!="crawl"?animSvg(sy,st):`<svg viewBox="0 0 260 300" style="width:100%;max-height:330px">
+const sy=sysKey(c.b),aem=AEQ_MSG;AEQ_MSG="";let h=`<div class="card"><div class="tabs" style="margin:0 0 8px"><button class="g" data-aeq="melee">⚔ Auto equip: melee</button><button class="g" data-aeq="ranged">🏹 Auto equip: ranged</button></div>${aem?`<p class="s" style="margin:0 0 8px"><b>${esc(aem)}</b></p>`:""}${sy&&sy!="crawl"?animSvg(sy,st):`<svg viewBox="0 0 260 300" style="width:100%;max-height:330px">
 <circle cx="130" cy="42" r="26" ${st("head")}/><circle cx="121" cy="40" r="3" fill="var(--fg)"/><circle cx="139" cy="40" r="3" fill="var(--fg)"/>
 ${M?`<polygon points="96,82 118,70 142,74 164,80 172,120 160,164 100,164 88,118" ${st("chest")}/>`:`<rect x="96" y="76" width="68" height="88" rx="10" ${st("chest")}/>`}
 <rect x="62" y="80" width="26" height="92" rx="12" ${st("arms")}/><rect x="172" y="80" width="26" height="92" rx="12" ${st("arms")}/>
@@ -686,6 +687,7 @@ if(b&&b.dataset.mup){mupg(c,b.dataset.mup);return showCard(c,"b")}
 if(b&&b.dataset.pr){delete c.img;save();return showCard(c,"p")}
 if(b&&b.dataset.bg){c.bg=genBg(c);save();return showCard(c,"p")}
 if(b&&b.dataset.d){const d=+b.dataset.d;if(d==3){col=col.filter(x=>x.id!=c.id);delete EQ[c.id];save();sv();list();pick=cur=null;S=null;del=0;$("out").innerHTML="";$("bt").innerHTML="";party=party.filter(id=>col.some(c=>c.id==id));return}del=d;return showCard(c,"s")}
+if(b&&b.dataset.aeq){const m=b.dataset.aeq,r=autoEquip(m,c);AEQ_MSG=r.n?"Equipped "+r.n+" item"+(r.n==1?"":"s")+" ("+(m=="melee"?"melee":"ranged")+" weapons first).":"Nothing to equip: no empty slot has a matching unequipped item.";try{list();pup()}catch(e){}return showCard(c,"b")}
 if(b&&b.dataset.eq){equip(c.id,sel,b.dataset.eq);return showCard(c,"b")}
 if(b&&b.dataset.un){delete (EQ[c.id]||{})[sel];sv();return showCard(c,"b")}
 if(sl&&bsOn(c,sl.dataset.slot)&&!(c.mut&&(sl.dataset.slot==c.mut.arm||sl.dataset.slot=="chest"))&&!((c.b=="Spewer"||c.b=="Caller")&&sl.dataset.slot=="head")){sel=sel==sl.dataset.slot?null:sl.dataset.slot;showCard(c,"b")}});
@@ -1354,17 +1356,17 @@ $("locs").addEventListener("click",e=>{if(e.target.closest("[data-l]"))setTimeou
 locs()})();
 
 /* ===== Auto equip: best unequipped gear into every empty slot, for all undead ===== */
-function aeScore(i,s){const hand=s.indexOf("hand")==0,mb=i.mb!=null?.5:0;
- if(i.t=="Weapon"){const w=wt(i);return hand?1000+(i.v+Math.floor(w/2))*10-w+mb:0}
+function aeScore(i,s,mode){const hand=s.indexOf("hand")==0,mb=i.mb!=null?.5:0;
+ if(i.t=="Weapon"){const w=wt(i);return hand?1000+(mode&&(mode=="melee")==!!isMelee(i)?5000:0)+(i.v+Math.floor(w/2))*10-w+mb:0}
  if(i.t=="Consumable")return i.rar*100+i.v;
  return i.v+mb+i.rar*.01}
-function autoEquip(){const pairs=[];
- col.forEach(c=>{const E=EQ[c.id]||{},M=c.mut;for(const s in SL){
+function autoEquip(mode,only){const pairs=[];
+ (only?[only]:col).forEach(c=>{const E=EQ[c.id]||{},M=c.mut;for(const s in SL){
   if(!bsOn(c,s))continue;if(s=="implant"&&c.b!="Cybernetic Human")continue;if(/2$/.test(s)&&c.b!="Amalgamation"&&!(s=="legs2"&&sysOf(c.b)=="Quadruped"))continue;
   if(s=="head"&&(c.b=="Spewer"||c.b=="Caller"))continue;if(M&&(s==M.arm||s=="chest"))continue;
   if(E[s]&&item(E[s]))continue;pairs.push({c,s})}});
  const free=INV.filter(i=>i.t!="Junk"&&!worn(i.id)),cand=[];
- pairs.forEach((p,pi)=>free.forEach(i=>{if(ok(p.s,i,p.c)&&!(i.t=="Weapon"&&p.s.indexOf("hand")!=0))cand.push({p,pi,i,sc:aeScore(i,p.s)})}));
+ pairs.forEach((p,pi)=>free.forEach(i=>{if(ok(p.s,i,p.c)&&!(i.t=="Weapon"&&p.s.indexOf("hand")!=0))cand.push({p,pi,i,sc:aeScore(i,p.s,mode)})}));
  cand.sort((x,y)=>y.sc-x.sc||x.pi-y.pi);
  const ui=new Set,up=new Set,who=new Set;let n=0;
  for(const x of cand){if(ui.has(x.i.id)||up.has(x.pi))continue;ui.add(x.i.id);up.add(x.pi);equip(x.p.c.id,x.p.s,x.i.id);who.add(x.p.c.id);n++}
