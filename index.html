@@ -688,7 +688,7 @@ function genBg(c){const pn={Male:"he",Female:"she"}[c.g]||"they",a=pk(PASTS);let
 const T=[()=>`Ex-${c.p} who ${a}.\nLater ${pn} ${b}.\nNow ${BP[c.b]} and ${pk(MOT)}.`,()=>`${cap(BP[c.b])} ex-${c.p}.\nFirst ${pn} ${a}, then ${b}.\nNow ${pk(MOT)}.`];
 return pk(T)().slice(0,200)}
 const UPB=[10,20,30],UPY=[5,10,20];
-function upCard(c){const bu=c.bu|0,yu=c.yu|0,rb=(n,cost,have,stk,what,eff,key)=>{const mx=n>=3,ok=!mx&&have>=cost;return `<div style="margin:10px 0 0"><div class="top"><b>${what}</b><b>Rank ${n}/3</b></div><p class="s" style="margin:4px 0">${eff}</p>${mx?'<p class="s" style="margin:4px 0">Max rank reached.</p>':`<button class="g" data-up="${key}" ${ok?"":"disabled"}>Upgrade: ${cost} ${stk} (you have ${ct(have)})</button>`}</div>`};
+function upCard(c){const bu=c.bu|0,yu=c.yu|0,rb=(n,cost,have,stk,what,eff,key)=>{const mx=n>=3,ok=!mx&&have>=cost;return `<div style="margin:10px 0 0"><div class="top"><b>${what}</b><b>Rank ${n}/3</b></div><p class="s" style="margin:4px 0">${eff}</p>${have===Infinity?'<p class="s" style="margin:4px 0">Cannot be upgraded.</p>':mx?'<p class="s" style="margin:4px 0">Max rank reached.</p>':`<button class="g" data-up="${key}" ${ok?"":"disabled"}>Upgrade: ${cost} ${stk} (you have ${ct(have)})</button>`}</div>`};
 return `<div class="card"><b>Upgrades</b><p class="s" style="margin:4px 0">Spend Morgue specimens to make this undead stronger.</p>${rb(bu,UPB[bu],cp(c.p),c.p,"Brain: "+c.p+" skills","Each rank: +1 damage on every attack and +3% hit chance. Now: +"+bu+" damage, +"+3*bu+"% hit.","b")}${rb(yu,UPY[yu],cb(c.b),BN(c.b),"Body: "+BN(c.b),"Each rank: +1 base damage, +1 armor on every limb and +4 max health. Now: +"+yu+" damage, +"+yu+" armor, +"+4*yu+" HP.","y")}</div>`}
 function profile(c){return upCard(c)+`<div class="card" style="margin-top:8px"><b>Name</b><input id="nmi" maxlength="20" value="${esc(c.name)}" style="margin:8px 0 14px"><b>Appearance</b>
 ${c.img?`<img src="${c.img}" alt="" style="display:block;width:100%;max-width:240px;margin:10px auto;border-radius:10px;border:1px solid var(--line)">`:'<p class="s" style="margin:8px 0">No image yet.</p>'}
@@ -706,7 +706,7 @@ $("out").addEventListener("click",e=>{const c=pick;if(!c)return;const b=e.target
 if(b&&b.dataset.v){sel=null;del=0;return showCard(c,b.dataset.v)}
 if(b&&b.dataset.pu)return $("imgf").click();
 if(b&&b.dataset.mup){mupg(c,b.dataset.mup);return showCard(c,"b")}
-if(b&&b.dataset.up){const k=b.dataset.up;if(k=="b"){const n=c.bu|0;if(n<3&&cp(c.p)>=UPB[n]){if(cp(c.p)!==Infinity)PC[c.p]-=UPB[n];c.bu=n+1}}else{const n=c.yu|0;if(n<3&&cb(c.b)>=UPY[n]){if(cb(c.b)!==Infinity)BC[c.b]-=UPY[n];c.yu=n+1}}svc();save();fillSel();return showCard(c,"p")}
+if(b&&b.dataset.up){const k=b.dataset.up;if(k=="b"){const n=c.bu|0;if(n<3&&cp(c.p)!==Infinity&&cp(c.p)>=UPB[n]){PC[c.p]-=UPB[n];c.bu=n+1}}else{const n=c.yu|0;if(n<3&&cb(c.b)!==Infinity&&cb(c.b)>=UPY[n]){BC[c.b]-=UPY[n];c.yu=n+1}}svc();save();fillSel();return showCard(c,"p")}
 if(b&&b.dataset.pr){delete c.img;save();return showCard(c,"p")}
 if(b&&b.dataset.bg){c.bg=genBg(c);save();return showCard(c,"p")}
 if(b&&b.dataset.d){const d=+b.dataset.d;if(d==3){col=col.filter(x=>x.id!=c.id);delete EQ[c.id];save();sv();list();pick=cur=null;S=null;del=0;$("out").innerHTML="";$("bt").innerHTML="";party=party.filter(id=>col.some(c=>c.id==id));return}del=d;return showCard(c,"s")}
