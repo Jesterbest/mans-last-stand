@@ -657,6 +657,7 @@ function worn(id){for(const u in EQ)for(const s in EQ[u])if(EQ[u][s]==id){const 
 function unwear(id){for(const k in EQ)for(const z in EQ[k])if(EQ[k][z]==id)delete EQ[k][z]}
 function equip(u,s,id){unwear(id);(EQ[u]=EQ[u]||{})[s]=id;sv()}
 function bonus(u){const b={d:0,a:0,h:0,w:0,hit:0,crit:0,rg:0,cl:0,mask:0,gg:0,hw:0,fl:0,p:{head:0,chest:0,arms:0,legs:0}},cc=col.find(x=>x.id==u)||{},m=cc.mut;if(cc.b=="Cybernetic Human"){PT.forEach(p=>b.p[p]+=1);b.a+=1}
+const ubr=cc.bu|0,uyr=cc.yu|0;if(ubr||uyr){b.d+=ubr+uyr;b.hit+=3*ubr;b.a+=uyr;b.h+=4*uyr;if(uyr)PT.forEach(p=>b.p[p]+=uyr)}
 if(m){const lr=m.lr||1,tr=m.tr||1;if(m.limb=="pierce")b.d+=1+lr;if(m.limb=="block"){b.a+=2+lr;b.p.arms+=2+lr}if(m.limb=="cleave")b.cl+=.4+.1*lr;if(m.torso=="pierce")b.d+=1+tr;if(m.torso=="block"){b.a+=2+tr;b.p.chest+=2+tr}if(m.torso=="cleave")b.cl+=.4+.1*tr;
 [m.lb,m.tb].forEach(x=>{if(x!=null){const f=MB[x];if(f.k=="p"){PT.forEach(p=>b.p[p]+=f.v);b.a+=f.v}else b[f.k]+=f.v}})}
 for(const s in EQ[u]||{}){const i=item(EQ[u][s]);if(!i)continue;if(i.mb!=null){const f=MB[i.mb];if(f.k=="p"){PT.forEach(p=>b.p[p]+=f.v);b.a+=f.v}else b[f.k]+=f.v}if(i.t=="Weapon"){b.d+=i.v+Math.floor(wt(i)/2);b.w+=wt(i);if(wt(i)>=4)b.hw=1;if(i.n=="Flamethrower")b.fl=1}if(i.t=="Armor"){b.a+=i.v;b.p[s=="legs2"&&sysOf(cc.b)=="Quadruped"?"arms":PS[i.s]]+=i.v}if(i.t=="Implant"){const k=IM[i.n][0];if(k=="p"){PT.forEach(p=>b.p[p]+=i.v);b.a+=i.v}else b[k]+=i.v}if(i.t=="Gear"&&SLG[i.n]){const g=SLG[i.n];if(g.k=="p"){PT.forEach(p=>b.p[p]+=i.v);b.a+=i.v}else b[g.k]+=i.v}else if(i.t=="Gear"){if(i.n=="Night Goggles"){b.hit+=5*i.v;b.gg=1}else b.h+=i.v;if(i.n=="Gas Mask")b.mask=1}}return b}
@@ -686,7 +687,10 @@ const MOT=["hungry for revenge","searching for survivors","fighting to take the 
 function genBg(c){const pn={Male:"he",Female:"she"}[c.g]||"they",a=pk(PASTS);let b=pk(PASTS);while(b==a)b=pk(PASTS);
 const T=[()=>`Ex-${c.p} who ${a}.\nLater ${pn} ${b}.\nNow ${BP[c.b]} and ${pk(MOT)}.`,()=>`${cap(BP[c.b])} ex-${c.p}.\nFirst ${pn} ${a}, then ${b}.\nNow ${pk(MOT)}.`];
 return pk(T)().slice(0,200)}
-function profile(c){return `<div class="card"><b>Name</b><input id="nmi" maxlength="20" value="${esc(c.name)}" style="margin:8px 0 14px"><b>Appearance</b>
+const UPB=[10,20,30],UPY=[5,10,20];
+function upCard(c){const bu=c.bu|0,yu=c.yu|0,rb=(n,cost,have,stk,what,eff,key)=>{const mx=n>=3,ok=!mx&&have>=cost;return `<div style="margin:10px 0 0"><div class="top"><b>${what}</b><b>Rank ${n}/3</b></div><p class="s" style="margin:4px 0">${eff}</p>${mx?'<p class="s" style="margin:4px 0">Max rank reached.</p>':`<button class="g" data-up="${key}" ${ok?"":"disabled"}>Upgrade: ${cost} ${stk} (you have ${ct(have)})</button>`}</div>`};
+return `<div class="card"><b>Upgrades</b><p class="s" style="margin:4px 0">Spend Morgue specimens to make this undead stronger.</p>${rb(bu,UPB[bu],cp(c.p),c.p,"Brain: "+c.p+" skills","Each rank: +1 damage on every attack and +3% hit chance. Now: +"+bu+" damage, +"+3*bu+"% hit.","b")}${rb(yu,UPY[yu],cb(c.b),BN(c.b),"Body: "+BN(c.b),"Each rank: +1 base damage, +1 armor on every limb and +4 max health. Now: +"+yu+" damage, +"+yu+" armor, +"+4*yu+" HP.","y")}</div>`}
+function profile(c){return upCard(c)+`<div class="card" style="margin-top:8px"><b>Name</b><input id="nmi" maxlength="20" value="${esc(c.name)}" style="margin:8px 0 14px"><b>Appearance</b>
 ${c.img?`<img src="${c.img}" alt="" style="display:block;width:100%;max-width:240px;margin:10px auto;border-radius:10px;border:1px solid var(--line)">`:'<p class="s" style="margin:8px 0">No image yet.</p>'}
 <div style="position:relative"><div class="fbtn">${c.img?"Replace image":"Upload image"}</div><input type="file" id="imgf" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"></div><p class="s" id="imgm" style="margin:6px 0 0"></p>${c.img?'<button class="g" data-pr="1">Remove image</button>':""}
 <b style="display:block;margin-top:16px">Backstory</b>
@@ -702,6 +706,7 @@ $("out").addEventListener("click",e=>{const c=pick;if(!c)return;const b=e.target
 if(b&&b.dataset.v){sel=null;del=0;return showCard(c,b.dataset.v)}
 if(b&&b.dataset.pu)return $("imgf").click();
 if(b&&b.dataset.mup){mupg(c,b.dataset.mup);return showCard(c,"b")}
+if(b&&b.dataset.up){const k=b.dataset.up;if(k=="b"){const n=c.bu|0;if(n<3&&cp(c.p)>=UPB[n]){if(cp(c.p)!==Infinity)PC[c.p]-=UPB[n];c.bu=n+1}}else{const n=c.yu|0;if(n<3&&cb(c.b)>=UPY[n]){if(cb(c.b)!==Infinity)BC[c.b]-=UPY[n];c.yu=n+1}}svc();save();fillSel();return showCard(c,"p")}
 if(b&&b.dataset.pr){delete c.img;save();return showCard(c,"p")}
 if(b&&b.dataset.bg){c.bg=genBg(c);save();return showCard(c,"p")}
 if(b&&b.dataset.d){const d=+b.dataset.d;if(d==3){col=col.filter(x=>x.id!=c.id);delete EQ[c.id];save();sv();list();pick=cur=null;S=null;del=0;$("out").innerHTML="";$("bt").innerHTML="";party=party.filter(id=>col.some(c=>c.id==id));return}del=d;return showCard(c,"s")}
@@ -748,11 +753,11 @@ function mupg(c,w){const m=c.mut,key=w=="torso"?"tr":"lr",bk=w=="torso"?"tb":"lb
 if(J.length<cost){MUM="Not enough junk: "+cost+" "+RN[r0]+" junk (or better) needed.";return}
 INV=INV.filter(i=>!J.includes(i));m[key]=r0+1;let ex="";if(r0+1==5){m[bk]=Math.floor(Math.random()*MB.length);ex=" and gained the "+MB[m[bk]].n+" buff ("+MB[m[bk]].t+")"}
 MUM="Upgraded the mutated "+(w=="torso"?"torso":"limb")+" to "+RN[r0+1]+" using "+cost+" junk"+ex+".";save();sv()}
-function stats(c){const b=bonus(c.id),m=mutB(c),cy=c.b=="Cybernetic Human"?1:0,g={d:b.d-m.d,a:b.a-m.a-cy},d=c.dmg+b.d,a=c.arm+b.a,nat=Math.max(0,Math.floor(c.arm/2)-(({Spewer:1,Husk:1})[c.b]||0)),tot=Math.round((30+b.h)*(HM[c.b]||1));
+function stats(c){const b=bonus(c.id),m=mutB(c),cy=c.b=="Cybernetic Human"?1:0,g={d:b.d-m.d-(c.bu|0)-(c.yu|0),a:b.a-m.a-cy-(c.yu|0)},d=c.dmg+b.d,a=c.arm+b.a,nat=Math.max(0,Math.floor(c.arm/2)-(({Spewer:1,Husk:1})[c.b]||0)),tot=Math.round((30+b.h)*(HM[c.b]||1));
 const x=(n,l)=>n?` +${n} ${l}`:"";
 return render({...c,dmg:d,arm:a})+`<div class="card" style="margin-top:8px"><b>Stat breakdown</b>
-<div class="mini"><span>Damage</span><span>${c.dmg} base${x(m.d,"mutation")}${x(g.d,"gear")} = <b>${d}</b></span></div>
-<div class="mini"><span>Armor rating</span><span>${c.arm} base${x(m.a,"mutation")}${x(cy,"cyber frame")}${x(g.a,"gear")} = <b>${a}</b></span></div>
+<div class="mini"><span>Damage</span><span>${c.dmg} base${x(m.d,"mutation")}${x((c.bu|0)+(c.yu|0),"upgrades")}${x(g.d,"gear")} = <b>${d}</b></span></div>
+<div class="mini"><span>Armor rating</span><span>${c.arm} base${x(m.a,"mutation")}${x(cy,"cyber frame")}${x(c.yu|0,"upgrades")}${x(g.a,"gear")} = <b>${a}</b></span></div>
 <div class="mini"><span>Hit chance modifier</span><span>weight ${b.w} (-${3*b.w}%)${b.hit?` + bonus +${b.hit}%`:""} = <b>${b.hit-3*b.w}%</b></span></div>
 <div class="mini"><span>Critical hit chance</span><span>5% base${CR[c.b]?` + ${CR[c.b]}% body`:""} ${b.crit?` + ${b.crit}% gear`:""} = <b>${5+(CR[c.b]||0)+b.crit}%</b> (×1.5 damage)</span></div>
 <div class="mini"><span>Total HP</span><span>30${x(b.h,"gear")}${HM[c.b]?" ×"+HM[c.b]:""} = <b>${tot}</b></span></div>
