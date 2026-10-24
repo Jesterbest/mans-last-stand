@@ -89,7 +89,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 <textarea id="svTxt" rows="4" placeholder="Save code appears here after export. To import, paste a save code here and press Import pasted code." style="width:100%;margin-top:8px;font-size:11px"></textarea>
 <button class="g" id="svCopy" style="margin-top:6px;font-size:12px;margin-right:6px">Copy code</button><button class="g" id="svPaste" style="margin-top:6px;font-size:12px">Import pasted code</button>
 <p class="s" id="svMsg" style="margin:6px 0 0"></p></div>
-<div class="tabs" id="mt"><button id="tabF" class="on">Forge</button><button id="tabU">Undead</button><button id="tabW">Expeditions</button><button id="tabS">Storage</button><button id="tabM">Morgue</button><button id="tabE">Memoriam</button><button id="tabK">The Market</button><button id="tabO">Onslaught</button></div>
+<div class="tabs" id="mt"><button id="tabF" class="on">Forge</button><button id="tabU">Undead</button><button id="tabW">Expeditions</button><button id="tabS">Storage</button><button id="tabM">Morgue</button><button id="tabE">Memoriam</button><button id="tabK">The Market</button><button id="tabO">Onslaught</button><button id="tabG">Settings</button></div>
 <div id="tf">
 <button class="g" id="rdintro" style="margin-top:6px">📖 Read the opening</button>
 <label>Name your undead</label><input id="n" placeholder="e.g. Marrow" maxlength="20">
@@ -121,6 +121,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 </div>
 <div id="ts" hidden></div>
 <div id="tmo" hidden></div>
+<div id="tset" hidden></div>
 <div id="tme" hidden></div>
 <div id="tmk" hidden></div>
 <div id="to" hidden>
@@ -760,8 +761,23 @@ ${PT.map(p=>`<div class="mini"><span>${PN[p]}</span><span>${Math.max(1,Math.roun
 const loreNote=c=>`<div class="card" style="margin-top:8px"><b>Origins</b><p class="s" style="margin:6px 0 0;font-style:italic"><b>${esc(c.p)}.</b> ${esc(LP[c.p]||"")}</p><p class="s" style="margin:6px 0 0;font-style:italic"><b>${esc(BN(c.b))}.</b> ${esc(LB[c.b]||"")}</p></div>`;
 const bgNote=c=>c.bg?`<div class="card" style="margin-top:8px"><b>Backstory</b><p style="margin:8px 0 0;line-height:1.6;white-space:pre-wrap;font-size:15px">${esc(c.bg)}</p></div>`:"";
 const mutNote=c=>c.b=="Immolated"?'<p class="s">🔥 Immolated: burns itself for 1 on a random limb every round (never below 1 HP), ignites a random limb with every melee attack, and sets the arms of anything that hits it in melee on fire.</p>':c.b=="Sprinter"?'<p class="s">🏃 Sprinter: moves 5 cells, enemies hit it 15% less often. But any destroyed arm or leg removes that evasion (it is then hit 10% more often), a destroyed arm cuts its damage by 4, and a destroyed leg slows it to 1 cell.</p>':c.b=="Shredder"?'<p class="s">🪟 Shredder: ×0.9 HP. Melee attackers take 2 thorn damage from the glass and rebar (doubled by Rebar Brace). Ranged attacks are not punished.</p>':c.b=="Hound"?'<p class="s">🐕 Hound: Quadruped body system. Four legs instead of arms (front legs take leg armor), cannot equip weapons or hand armor, has a Collar slot (carries a hip item), ×0.75 HP, moves fast, and its bite leaves festering wounds.</p>':c.b=="Crawler"?'<p class="s">🦽 Crawler: no legs or feet. Slow, easier to hit with melee but hard to hit from range, and enemies are less likely to target it.</p>':c.b=="Husk"?'<p class="s">🧟 Husk: ×0.7 HP, 1 less natural armor, and it gets back up one round after falling (100%, then 50%, then 25% per expedition).</p>':c.b=="Spewer"?'<p class="s">🧪 Spewer: ×1.15 HP, 1 less natural armor on every limb, no head pieces, and acidic and protective spews.</p>':c.b=="Caller"?'<p class="s">📯 Caller: no head pieces. Calls hordes down on the enemy, and natural horde events turn on the enemies instead of your party.</p>':c.b=="Brute"?'<p class="s">🪓 Brute: +3 damage, no firearms, a 20% chance each turn to frenzy and attack at random, and a free second swing at 60% damage when dual wielding melee weapons.</p>':c.b=="Titan"?'<p class="s">🗿 Titan: ×1.9 total HP, but enemies hit 10% more often.</p>':c.b=="Amalgamation"?'<p class="s">🧟 Amalgamation: extra arms, hands and legs plus a second chest slot, but enemies hit 20% more often.</p>':c.b=="Cybernetic Human"?'<p class="s">⚙ Cybernetic frame: +1 armor on every limb and an Implant slot.</p>':c.mut?`<p class="s">🧬 Permanent mutations: ${RN[c.mut.lr||1]} ${MN[c.mut.limb]} limb on the ${c.mut.arm=="handL"?"left":"right"} arm, ${RN[c.mut.tr||1]} ${MN[c.mut.torso]} torso. Upgrade them in the Body tab with junk.</p>`:"";
-function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI()}
-$("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);
+
+function setUI(){const L=window.UFI18N?UFI18N.get():"en",ls=window.UFI18N?UFI18N.langs:[["en","English (American)"]];
+const g='opacity:.45;pointer-events:none';
+const row=(t)=>`<div style="margin:10px 0;${g}"><label>${t} <span class="s">Not added yet</span></label><br><input type="range" min="0" max="100" value="50" disabled style="width:100%"></div>`;
+$("tset").innerHTML=`<h3>Sound</h3>
+<div style="margin:10px 0"><label>Sound effects <b id="volv">${Math.round(VOL*100)}%</b></label><br><input type="range" id="volr" min="0" max="100" value="${Math.round(VOL*100)}" style="width:100%"></div>
+<button class="g" id="voltest" style="font-size:12px">Test sound</button>
+${row("Location ambient sound")}${row("Tab music")}${row("Zombie sounds")}
+<h3>Language</h3>
+<select id="langs" style="font-size:15px;padding:6px">${ls.map(x=>`<option value="${x[0]}"${x[0]==L?" selected":""}>${x[1]}</option>`).join("")}</select>
+<p class="s">Choose the interface language. Game text such as lore, skills, items and battle logs stays in English for now.</p>`;
+const sv=()=>{try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");q.vol=VOL;localStorage.setItem("ufset",JSON.stringify(q))}catch(e){}};
+$("volr").oninput=e=>{VOL=+e.target.value/100;$("volv").textContent=Math.round(VOL*100)+"%";if(AC&&AC._m)AC._m.gain.value=.32*VOL;sv()};
+$("voltest").onclick=()=>{const a=aud();if(a&&SK&&SK.buff)try{SK.buff(a,a.currentTime)}catch(e){}};
+$("langs").onchange=e=>{window.UFI18N&&UFI18N.set(e.target.value);setUI()}}
+function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to","tset"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO","tabG"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI();if(n==8)setUI()}
+$("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);$("tabG").onclick=()=>tab(8);
 $("fight").onclick=()=>{party=party.filter(id=>col.some(c=>c.id==id));if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();xView(false)};
 $("bt").onclick=e=>{if(e.target.id=="again")return xBack();if(!S||S.over)return;if(e.target.closest("[data-use]")){useCons();return}const ua=e.target.closest("[data-ua]");if(ua&&alive(S.U[+ua.dataset.ua])){S.ally=+ua.dataset.ua;return bt()}if(e.target.closest("[data-auto]")){S.auto=AUTO=!S.auto;return bt()}if(e.target.closest("[data-snx]")){SND=!SND;try{localStorage.setItem("ufsnd",SND?"1":"0")}catch(x){}if(SND)aud();return bt()}if(e.target.closest("[data-ret]")){clearTimeout(AT);return endExp("Retreated")}const lp=e.target.closest("[data-lp]");if(lp){const ee=+lp.dataset.le,q=lp.dataset.lp;if(!dead(S.N[ee].E)&&S.N[ee].E[q].h>0){S.tg={e:ee,p:q};bt()}return}const t=e.target.closest("[data-t]");if(t&&!t.disabled){S.tg.p=t.dataset.t;return bt()}
 const b=e.target.closest(".sb");if(b){if(!b.disabled)act(+b.dataset.i);return}
@@ -912,8 +928,9 @@ const hit=[];OS.U.forEach(u=>{if(alive(u)){const c=cellsOf(u).find(k=>T[k]&&T[k]
 hit.forEach(([e,c,pl])=>{const t=T[c],d=t.d+Math.floor((OS.r-1)/4),T0=pl?e.P:e.E,nm=pl?e.c.name:e.name,l=PT.filter(q=>T0[q].h>0);if(!l.length)return;const p=pk(l);
 if(pl)dmgP(e,p,d);else T0[p].h=Math.max(0,T0[p].h-d);if(OS.rec)OS.ev.push({fx:1,ph:OS.ph,kind:"haz",e:t.e,a:cen(e),t:cen(e),d,die:pl?dead(e.P):dead(e.E)});
 log("   "+t.e+" "+M.h[1]+" hurt "+nm+"'s "+PN[p].toLowerCase()+" for "+d+". "+PN[p]+": "+T0[p].h+"/"+T0[p].m+(T0[p].h<=0?" — destroyed!":""));if(M.once){(OS.dc=OS.dc||{})[c]="hs_"+OS.area;delete T[c]}})}
+let VOL=1;try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");if(typeof q.vol=="number")VOL=Math.max(0,Math.min(1,q.vol))}catch(e){}
 let AC=null,SND=true;try{SND=localStorage.getItem("ufsnd")!=="0"}catch(e){}
-function aud(){if(!SND)return null;try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();const m=AC.createGain();m.gain.value=.32;m.connect(AC.destination);AC._m=m}if(AC.state=="suspended")AC.resume();return AC}catch(e){return null}}
+function aud(){if(!SND)return null;try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();const m=AC.createGain();m.gain.value=.32*VOL;m.connect(AC.destination);AC._m=m}if(AC.state=="suspended")AC.resume();return AC}catch(e){return null}}
 const Nz=(a,t,d,ty,f0,f1,v,q)=>{const n=Math.max(1,Math.floor(a.sampleRate*d)),b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=Math.random()*2-1;const s=a.createBufferSource();s.buffer=b;const fl=a.createBiquadFilter(),g=a.createGain();fl.type=ty;fl.frequency.setValueAtTime(f0,t);if(f1)fl.frequency.exponentialRampToValueAtTime(f1,t+d);if(q)fl.Q.value=q;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(g);g.connect(a._m);s.start(t);s.stop(t+d+.02)};
 const Tn=(a,t,d,ty,f0,f1,v)=>{const o=a.createOscillator(),g=a.createGain();o.type=ty;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a._m);o.start(t);o.stop(t+d+.02)};
 const SK={punch:(a,t)=>{Nz(a,t,.08,"lowpass",900,200,.7);Tn(a,t,.1,"sine",140,50,.8)},
@@ -1434,7 +1451,7 @@ $("autoup").onclick=()=>{const m=$("aemsg");
  $("autoup").textContent="✔ Confirm: spend "+p.spent+" junk";$("autoup").className="";$("autoupx").hidden=false};
 $("autoeq").addEventListener("click",()=>{if(AUP)aupReset()},true);
 /* ===== Save / Load between versions ===== */
-(function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd"];
+(function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd","ufset"];
 const g=id=>document.getElementById(id),msg=t=>{g("svMsg").textContent=t};let pend=null;
 function pack(){const d={};KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)d[k]=v}catch(e){}});return JSON.stringify({game:"mans-last-stand",ver:1,saved:new Date().toISOString(),data:d})}
 async function dl(txt){const fn="mans-last-stand-save.json";try{const d=window.claude&&await window.claude.use("downloads");if(d){await d.save({filename:fn,data:txt});return "ok"}}catch(e){if(e&&e.code==="declined")return "declined"}try{const b=new Blob([txt],{type:"application/octet-stream"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=fn;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);return "ok"}catch(e){}try{const a=document.createElement("a");a.href="data:application/octet-stream;charset=utf-8,"+encodeURIComponent(txt);a.download=fn;document.body.appendChild(a);a.click();a.remove();return "ok"}catch(e){return "fail"}}
@@ -1448,6 +1465,6 @@ g("svFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new File
 g("svPaste").onclick=()=>{if(pend){try{KEYS.forEach(k=>{if(k in pend)localStorage.setItem(k,pend[k])});msg("Loaded. Reloading...");setTimeout(()=>location.reload(),300)}catch(e){msg("This browser blocked saving, so the import could not be applied.")}return}stage(g("svTxt").value)};
 g("svTxt").oninput=()=>{pend=null;const b=g("svPaste");b.textContent="Import pasted code";b.className="g"};
 })();
-</script></body></html>
+</script><script src="i18n.js"></script></body></html>
 
 </body></html>
