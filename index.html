@@ -771,7 +771,7 @@ $("tset").innerHTML=`<h3>Sound</h3>
 ${row("Location ambient sound")}${row("Tab music")}${row("Zombie sounds")}
 <h3>Language</h3>
 <select id="langs" style="font-size:15px;padding:6px">${ls.map(x=>`<option value="${x[0]}"${x[0]==L?" selected":""}>${x[1]}</option>`).join("")}</select>
-<p class="s">Choose the interface language. Game text such as lore, skills, items and battle logs stays in English for now.</p>`;
+<p class="s">Choose the language. The interface, skills, professions, body types, lore, items and battle logs are translated. Translations are machine-written and may contain mistakes.</p>`;
 const sv=()=>{try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");q.vol=VOL;localStorage.setItem("ufset",JSON.stringify(q))}catch(e){}};
 $("volr").oninput=e=>{VOL=+e.target.value/100;$("volv").textContent=Math.round(VOL*100)+"%";if(AC&&AC._m)AC._m.gain.value=.32*VOL;sv()};
 $("voltest").onclick=()=>{const a=aud();if(a&&SK&&SK.buff)try{SK.buff(a,a.currentTime)}catch(e){}};
