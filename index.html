@@ -756,12 +756,12 @@ if(J.length<cost){MUM="Not enough junk: "+cost+" "+RN[r0]+" junk (or better) nee
 INV=INV.filter(i=>!J.includes(i));m[key]=r0+1;let ex="";if(r0+1==5){m[bk]=Math.floor(Math.random()*MB.length);ex=" and gained the "+MB[m[bk]].n+" buff ("+MB[m[bk]].t+")"}
 MUM="Upgraded the mutated "+(w=="torso"?"torso":"limb")+" to "+RN[r0+1]+" using "+cost+" junk"+ex+".";save();sv()}
 function stats(c){const b=bonus(c.id),m=mutB(c),cy=c.b=="Cybernetic Human"?1:0,g={d:b.d-m.d-(c.bu|0)-(c.yu|0),a:b.a-m.a-cy-(c.yu|0)},d=c.dmg+b.d,a=c.arm+b.a,nat=Math.max(0,Math.floor(c.arm/2)-(({Spewer:1,Husk:1})[c.b]||0)),tot=Math.round((30+b.h)*(HM[c.b]||1));
-const x=(n,l)=>n?` +${n} ${l}`:"";
+const x=(n,l)=>n?` +${n} <span>${l}</span>`:"";
 return render({...c,dmg:d,arm:a})+`<div class="card" style="margin-top:8px"><b>Stat breakdown</b>
-<div class="mini"><span>Damage</span><span>${c.dmg} base${x(m.d,"mutation")}${x((c.bu|0)+(c.yu|0),"upgrades")}${x(g.d,"gear")} = <b>${d}</b></span></div>
-<div class="mini"><span>Armor rating</span><span>${c.arm} base${x(m.a,"mutation")}${x(cy,"cyber frame")}${x(c.yu|0,"upgrades")}${x(g.a,"gear")} = <b>${a}</b></span></div>
-<div class="mini"><span>Hit chance modifier</span><span>weight ${b.w} (-${3*b.w}%)${b.hit?` + bonus +${b.hit}%`:""} = <b>${b.hit-3*b.w}%</b></span></div>
-<div class="mini"><span>Critical hit chance</span><span>5% base${CR[c.b]?` + ${CR[c.b]}% body`:""} ${b.crit?` + ${b.crit}% gear`:""} = <b>${5+(CR[c.b]||0)+b.crit}%</b> (×1.5 damage)</span></div>
+<div class="mini"><span>Damage</span><span>${c.dmg} <span>base</span>${x(m.d,"mutation")}${x((c.bu|0)+(c.yu|0),"upgrades")}${x(g.d,"gear")} = <b>${d}</b></span></div>
+<div class="mini"><span>Armor rating</span><span>${c.arm} <span>base</span>${x(m.a,"mutation")}${x(cy,"cyber frame")}${x(c.yu|0,"upgrades")}${x(g.a,"gear")} = <b>${a}</b></span></div>
+<div class="mini"><span>Hit chance modifier</span><span><span>weight</span> ${b.w} (-${3*b.w}%)${b.hit?` + <span>bonus</span> +${b.hit}%`:""} = <b>${b.hit-3*b.w}%</b></span></div>
+<div class="mini"><span>Critical hit chance</span><span>5% <span>base</span>${CR[c.b]?` + ${CR[c.b]}% <span>body</span>`:""} ${b.crit?` + ${b.crit}% <span>gear</span>`:""} = <b>${5+(CR[c.b]||0)+b.crit}%</b> (×1.5 damage)</span></div>
 <div class="mini"><span>Total HP</span><span>30${x(b.h,"gear")}${HM[c.b]?" ×"+HM[c.b]:""} = <b>${tot}</b></span></div>
 <p class="s" style="margin:10px 0 0">Per limb: HP is split across limbs, and armor only protects its own limb (natural armor ${nat} on every limb; feet armor guards legs). Head or chest at 0 means defeat.</p>
 ${PT.map(p=>`<div class="mini"><span>${PN[p]}</span><span>${Math.max(1,Math.round(tot*PR[p]))} HP · 🛡${nat+b.p[p]}</span></div>`).join("")}</div>`}
@@ -879,10 +879,10 @@ const STEPS=[
 ];
 let n=0;
 function render(){
- const s=STEPS[n],o=$("tut");
- o.innerHTML=`<div class="in" data-notr="1"><div class="tp">Step ${n+1} of ${STEPS.length}</div><div class="tdots">${STEPS.map((_,i)=>`<i class="${i==n?"on":i<n?"dn":""}"></i>`).join("")}</div><h1>${s.icon} ${s.t}</h1>${s.h()}
- <div class="tnav">${n?`<button class="g" id="tprev">Back</button>`:`<button class="g" id="tskip">Skip</button>`}${n<STEPS.length-1?`<button id="tnext">Next</button>`:`<button id="tdone">${s.goLabel||"Done"}</button>`}</div>
- ${s.go!=null&&!s.final?`<button class="g" id="tgo">${s.goLabel}</button>`:""}</div>`;
+ const s=STEPS[n],o=$("tut"),L=window.UFI18N?UFI18N.get():"en",TT=window.UFLANG&&window.UFLANG[L]&&window.UFLANG[L].tut,X=TT&&TT.s[n]?TT.s[n]:{t:s.t,h:s.h(),g:s.goLabel},U=TT?TT.ui:{step:"Step {n} of {m}",back:"Back",next:"Next",skip:"Skip",done:"Done"},gl=X.g||s.goLabel;
+ o.innerHTML=`<div class="in" data-notr="1"><div class="tp">${U.step.replace("{n}",n+1).replace("{m}",STEPS.length)}</div><div class="tdots">${STEPS.map((_,i)=>`<i class="${i==n?"on":i<n?"dn":""}"></i>`).join("")}</div><h1>${s.icon} ${X.t}</h1>${X.h}
+ <div class="tnav">${n?`<button class="g" id="tprev">${U.back}</button>`:`<button class="g" id="tskip">${U.skip}</button>`}${n<STEPS.length-1?`<button id="tnext">${U.next}</button>`:`<button id="tdone">${gl||U.done}</button>`}</div>
+ ${s.go!=null&&!s.final?`<button class="g" id="tgo">${gl}</button>`:""}</div>`;
  o.scrollTop=0;
  const q=id=>o.querySelector("#"+id);
  if(q("tprev"))q("tprev").onclick=()=>{n--;render()};
