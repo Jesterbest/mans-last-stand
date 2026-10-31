@@ -188,6 +188,7 @@ function node(t){
    return}
  delete t.__tr;delete t.__en;
  if(lang==="en")return;
+ if(t.parentElement&&t.parentElement.closest("[data-notr]"))return;
  const s=cur.trim();if(!s||s.length>1500||!/[A-Za-z]{2}/.test(s))return;
  const w=tr(s,lang);if(!w)return;
  const out=cur.replace(s,()=>w);t.__en=cur;t.__tr=out;t.data=out}

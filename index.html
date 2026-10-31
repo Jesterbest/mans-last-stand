@@ -31,6 +31,7 @@ button:disabled{opacity:.4}.it span:last-child{flex-wrap:wrap;justify-content:fl
 textarea{width:100%;padding:12px;font-size:16px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;box-sizing:border-box;font-family:inherit;line-height:1.55;resize:vertical}
 #mt{gap:4px;flex-wrap:wrap}#mt button{font-size:12px;padding:10px 3px;width:auto;flex:1 1 30%}
 .lg{max-height:260px;overflow-y:auto;line-height:1.5}
+#tut{position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))}#tut .in{max-width:480px;margin:0 auto;font-size:15px;line-height:1.55}#tut h1{font-size:22px;margin:6px 0 10px}#tut ul,#tut ol{padding-left:20px;margin:8px 0}#tut li{margin:4px 0}.tp{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}.tdots{display:flex;gap:5px;margin:6px 0}.tdots i{flex:1;height:4px;border-radius:2px;background:var(--line)}.tdots i.on{background:var(--acc)}.tdots i.dn{background:var(--mut)}.tmock{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}.trow{display:flex;gap:6px;flex-wrap:wrap}.tchip{border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px}.tfield{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0;display:flex;justify-content:space-between;align-items:center}.tfield small{color:var(--mut)}.tbtn{background:var(--acc);color:#fff;text-align:center;border-radius:8px;padding:10px;margin-top:8px;font-weight:bold}.tloc{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.tloc small{display:block;color:var(--mut)}.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}.tgrid div{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--card)}.tgrid b{display:block}.tbody{position:relative;height:130px}.tslot{position:absolute;transform:translateX(-50%);border:1.5px dashed var(--fg);border-radius:8px;padding:4px 10px;font-size:12px;background:var(--card)}.tbody .tslot[style*="left:6%"]{transform:none}.tbody .tslot[style*="right:6%"]{transform:none}.tnav{display:flex;gap:10px;margin-top:18px}.tnav button{flex:1;margin-top:0}.tloop{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:10px 0}.tloop div{border:1px solid var(--acc);border-radius:10px;padding:7px 10px;font-size:13px;background:var(--card)}.tloop i{color:var(--acc);font-style:normal;font-weight:bold}
 #ov{position:fixed;inset:0;z-index:99;background:var(--bg);overflow-y:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))}#ov .in{max-width:480px;margin:0 auto}
 .ogw{container-type:inline-size;margin-top:8px;position:relative}.fxl{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:6}.fxe{position:absolute;pointer-events:none;transform:translate(-50%,-50%);line-height:1;white-space:nowrap}.fxr{position:absolute;pointer-events:none;box-sizing:border-box;border-radius:5px}.og{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-auto-rows:calc((100cqw - 18px)/10);gap:2px}.oc{position:relative;border-radius:4px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;cursor:pointer;min-width:0}.oc .otile{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:3px;pointer-events:none}.oc small{z-index:1}.oc span{width:82%;height:82%;display:flex;align-items:center;justify-content:center;color:#fff}
 </style>
@@ -91,7 +92,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 <p class="s" id="svMsg" style="margin:6px 0 0"></p></div>
 <div class="tabs" id="mt"><button id="tabF" class="on">Forge</button><button id="tabU">Undead</button><button id="tabW">Expeditions</button><button id="tabS">Storage</button><button id="tabM">Morgue</button><button id="tabE">Memoriam</button><button id="tabK">The Market</button><button id="tabO">Onslaught</button><button id="tabG">Settings</button></div>
 <div id="tf">
-<button class="g" id="rdintro" style="margin-top:6px">📖 Read the opening</button>
+<button class="g" id="rdintro" style="margin-top:6px">📖 Read the opening</button> <button class="g" id="rdtut" style="margin-top:6px">📘 Tutorial</button>
 <label>Name your undead</label><input id="n" placeholder="e.g. Marrow" maxlength="20">
 <label>Gender: <span id="gv">Male</span></label><input type="range" id="gs" min="0" max="2" step="1" value="0" style="padding:0"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut)"><span>Male</span><span>Female</span><span>Nonbinary</span></div>
 <label>Brain</label><select id="p"></select>
@@ -134,6 +135,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 <button id="ostart">⚔ Start Onslaught</button><p class="s" id="onm" style="margin:6px 0 0"></p>
 <div id="ob"></div>
 </div>
+<div id="tut" hidden></div>
 <div id="ov" hidden><div class="in">
 <h1 style="margin:0 0 4px">☣ MAN'S LAST STAND</h1>
 <p class="s" style="margin:0 0 14px;font-style:italic">The last laboratory</p>
@@ -774,13 +776,14 @@ $("tset").innerHTML=`<h3>Sound</h3>
 <div style="margin:10px 0"><label>Sound effects <b id="volv">${Math.round(VOL*100)}%</b></label><br><input type="range" id="volr" min="0" max="100" value="${Math.round(VOL*100)}" style="width:100%"></div>
 <button class="g" id="voltest" style="font-size:12px">Test sound</button>
 ${row("Location ambient sound")}${row("Tab music")}${row("Zombie sounds")}
+<h3>Help</h3><button class="g" id="settut" style="font-size:12px">📘 Tutorial</button>
 <h3>Language</h3>
 <select id="langs" style="font-size:15px;padding:6px">${ls.map(x=>`<option value="${x[0]}"${x[0]==L?" selected":""}>${x[1]}</option>`).join("")}</select>
 <p class="s">Choose the language. The interface, skills, brains, body types, lore, items and battle logs are translated. Translations are machine-written and may contain mistakes.</p>`;
 const sv=()=>{try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");q.vol=VOL;localStorage.setItem("ufset",JSON.stringify(q))}catch(e){}};
 $("volr").oninput=e=>{VOL=+e.target.value/100;$("volv").textContent=Math.round(VOL*100)+"%";if(AC&&AC._m)AC._m.gain.value=.32*VOL;sv()};
 $("voltest").onclick=()=>{const a=aud();if(a&&SK&&SK.buff)try{SK.buff(a,a.currentTime)}catch(e){}};
-$("langs").onchange=e=>{window.UFI18N&&UFI18N.set(e.target.value);setUI()}}
+$("settut").onclick=()=>showTutorial();$("langs").onchange=e=>{window.UFI18N&&UFI18N.set(e.target.value);setUI()}}
 function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to","tset"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO","tabG"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI();if(n==8)setUI()}
 $("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);$("tabG").onclick=()=>tab(8);
 $("fight").onclick=()=>{party=party.filter(id=>col.some(c=>c.id==id));if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();xView(false)};
@@ -820,9 +823,78 @@ const pc=k=>`<div class="card" style="margin-top:8px"><div class="top"><b>${esc(
 $("tmo").innerHTML=`<h2 style="margin-top:6px">Morgue (specimen storage)</h2><p class="s" style="margin:6px 0 0">Forging an undead uses 1 brain and 1 body type. Nobody and Human Cadaver are unlimited. Win fights to find more. Discovered: ${db}/${bn.length} body types, ${dp}/${pn.length} brains.</p><h2>Body types</h2>${bn.map(k=>DB.includes(k)?bc(k):lock).join("")}<h2>Brains</h2>${pn.map(k=>DP.includes(k)?pc(k):lock).join("")}<h2>🐾 Animal brains</h2><p class="s" style="margin:4px 0">Only animal bodies can take these, and animal bodies can take nothing else. Stray is unlimited. Found in the Swamp.</p>${["Base","Rescue","Support","Combat","Utility"].map(g=>an.filter(k=>AGRP[k]==g&&AGRP[k]!="Base"||(g=="Base"&&k=="Stray")).length?`<div style="font-size:12px;color:var(--mut);margin:10px 0 0;text-transform:uppercase;letter-spacing:1px">${g}</div>`+an.filter(k=>AGRP[k]==g).map(k=>DP.includes(k)||(k=="Stray"&&DB.some(isAnimalB))?pc(k):lock).join(""):"").join("")}`}
 $("gs").oninput=()=>{$("gv").textContent=GN[+$("gs").value]};
 function showIntro(){$("ov").hidden=false;$("ov").scrollTop=0;document.body.style.overflow="hidden"}
-$("begin").onclick=()=>{$("ov").hidden=true;document.body.style.overflow="";try{localStorage.setItem("ufintro","1")}catch(e){}};
-$("rdintro").onclick=showIntro;
+$("begin").onclick=()=>{$("ov").hidden=true;document.body.style.overflow="";try{localStorage.setItem("ufintro","1")}catch(e){}try{if(!localStorage.getItem("uftut")&&!col.length)showTutorial()}catch(e){}};
+$("rdintro").onclick=showIntro;$("rdtut").onclick=()=>showTutorial();
 try{if(!localStorage.getItem("ufintro"))showIntro()}catch(e){showIntro()}
+/* ===== Tutorial ===== */
+(function(){
+const mk=(h)=>`<div class="tmock">${h}</div>`;
+const chip=(t,c)=>`<span class="tchip"${c?` style="${c}"`:""}>${t}</span>`;
+const STEPS=[
+{t:"Welcome to the lab",icon:"☣",go:null,
+ h:()=>`<p>You raise the dead and send them into the ruins. They bring back loot and new specimens, and you use those to raise stronger ones. This short guide covers the basics.</p>`+
+ mk(`<div class="trow">${["Forge","Undead","Expeditions","Storage","Morgue"].map((x,i)=>chip(x,i==0?"background:var(--acc);color:#fff":"")).join("")}</div><div class="trow" style="margin-top:6px">${["Memoriam","The Market","Onslaught","Settings"].map(x=>chip(x)).join("")}</div>`)+
+ `<ul><li><b>Forge</b> makes a new undead.</li><li><b>Undead</b> shows your collection, stats and gear.</li><li><b>Expeditions</b> is where you fight.</li><li><b>Storage</b> holds loot. <b>Morgue</b> holds brains and bodies.</li></ul><p class="s">You can reopen this guide any time from the Forge tab or Settings.</p>`},
+{t:"Make an undead",icon:"🧪",go:0,goLabel:"Open the Forge",
+ h:()=>`<p>Every undead is a <b>brain</b> plus a <b>body</b>.</p>`+
+ mk(`<div class="tfield"><small>Brain</small><b>Nobody ×∞</b></div><div class="tfield"><small>Body</small><b>Human Cadaver ×∞</b></div><div class="tfield"><small>Name</small><b>Marrow</b></div><div class="tbtn">Forge Undead</div>`)+
+ `<ul><li><b>Brain</b> is who they were in life. It gives 2 skills, a base damage and armor bonus, and half of their fusion skill.</li><li><b>Body</b> is what they are now. It gives 2 skills, traits (health, armor, quirks) and the other half of the fusion skill.</li><li>Forging uses up 1 brain and 1 body from the Morgue. <b>Nobody, Stray and Human Cadaver are unlimited</b>, so you can always start with those.</li><li>Pick a dropdown entry to read its lore, skills and traits before you commit.</li></ul>`},
+{t:"Pick an expedition",icon:"🗺",go:2,goLabel:"Open Expeditions",
+ h:()=>`<p>Open the <b>Expeditions</b> tab and set up a run:</p>`+
+ mk(`<div class="tloc"><b>Wasteland</b><small>Balanced loot. Easy.</small></div><div class="tloc"><b>Mall</b><small>Junk and armor.</small></div><div class="trow" style="margin-top:8px">${chip("Standard: 5 waves")}${chip("Safe","background:var(--acc);color:#fff")}${chip("Party 1/3")}</div><div class="tbtn">⚔ Set off</div>`)+
+ `<ol><li><b>Location:</b> tap a card. Each one drops different loot (next page).</li><li><b>Waves:</b> Short 3, Standard 5, Long 8, or Endless. A boss appears on the last wave.</li><li><b>Difficulty:</b><ul><li><b>Safe:</b> about 60% of the usual loot, but every undead comes home.</li><li><b>Threatening:</b> better loot. If you lose, each undead has a 50% chance to be lost forever.</li><li><b>Deadly:</b> high rarity loot including Epic. Any undead that falls dies permanently and its gear is lost.</li></ul></li><li><b>Party:</b> open "Choose party" to bring up to 3 undead. With none chosen, the selected undead goes alone.</li><li>Press <b>Set off</b>.</li></ol><p class="s">Start on Safe until you know what you're doing.</p>`},
+{t:"Where to go",icon:"📍",go:2,goLabel:"See the locations",
+ h:()=>`<p>Pick a location for what you need. Hard and Extreme places give better rewards and hit harder.</p>
+ <div class="tgrid">
+ <div><b>Wasteland</b> Easy. Balanced loot.</div>
+ <div><b>Mall</b> Junk and armor. Entertainment brains.</div>
+ <div><b>Shelter</b> Mostly gear.</div>
+ <div><b>Docks</b> Easy. Hip and back gear, scrap, construction brains.</div>
+ <div><b>Train Station</b> Easy. Brains everywhere, almost no gear.</div>
+ <div><b>Ghetto</b> More weapons. Criminal brains.</div>
+ <div><b>Hospital</b> Consumables and medical brains.</div>
+ <div><b>Swamp</b> Medium. Animal brains, gear and junk.</div>
+ <div><b>Sewers</b> Medium. Little loot, but the boss hoard is 3x.</div>
+ <div><b>Military Base</b> Extreme. Better armor, gear and weapons.</div>
+ <div><b>Lab</b> Extreme. Implants and Cybernetic Human cadavers.</div>
+ <div><b>Museum</b> Hard. Medieval armor and weapons.</div>
+ <div><b>Police Station</b> Hard. Police brains and gear.</div>
+ <div><b>The Carnival</b> Extreme. Spewer, Titan and Caller cadavers.</div>
+ <div><b>Casino</b> Extreme. Gambling brains. Almost nothing drops, half of it Epic.</div>
+ <div><b>Mansion</b> Extreme. Only Rare and Epic loot, but very little.</div>
+ </div><p class="s" style="margin-top:8px">Locked places show "Beat a boss on Easy/Normal/Hard to unlock". Defeat a boss and new locations open, plus that boss becomes a trader in The Market.</p>`},
+{t:"Equip gear",icon:"🛡",go:1,goLabel:"Open Undead",
+ h:()=>`<p>Loot lands in <b>Storage</b>. To use it, equip it on an undead.</p>`+
+ mk(`<div class="tbody"><div class="tslot" style="top:0;left:50%">Head</div><div class="tslot" style="top:34px;left:50%">Chest</div><div class="tslot" style="top:34px;left:6%">Arm</div><div class="tslot" style="top:34px;right:6%">Arm</div><div class="tslot" style="top:80px;left:50%">Legs</div></div>`)+
+ `<ol><li>Open the <b>Undead</b> tab and tap one of your undead.</li><li>Choose the <b>Body</b> sub-tab.</li><li>Tap a body part on the figure, then press <b>Equip</b> on an item in the list.</li><li>Or tap <b>Auto equip</b> to fill empty slots with the best fit (melee or ranged weapons first).</li></ol><ul><li><b>Weapons</b> add damage but their weight lowers your hit chance (-3% per weight).</li><li><b>Armor</b> adds armor to that body part.</li><li><b>Gear and implants</b> add health, crit, hit chance and more.</li><li><b>Consumables</b> are used mid-battle.</li><li><b>Junk (scrap)</b> can be gambled for new loot or traded to bosses, and you can scrap unwanted gear into junk in Storage.</li></ul>`},
+{t:"Fighting",icon:"⚔",go:null,
+ h:()=>`<p>Battles are turn based, in waves. On your turn pick a <b>skill</b>, then tap the enemy <b>body part</b> to hit.</p>`+
+ mk(`<div class="trow">${["Head 60%","Chest 90%","Arms 75%","Legs 75%"].map(x=>chip(x)).join("")}</div><div class="trow" style="margin-top:6px">${chip("Punch","background:var(--acc);color:#fff")}${chip("Dodge")}${chip("Fusion · cooldown 4")}</div>`)+
+ `<ul><li>Head and chest are the easiest targets. Break one and the enemy collapses.</li><li>On your undead, a broken arm weakens their blows and broken legs lower their hit chance.</li><li>Armor reduces every hit. Block absorbs damage until the enemy phase ends.</li><li>Skills have cooldowns. The fusion skill is your strongest.</li><li><b>Auto</b> plays for you. <b>Retreat</b> ends the run and keeps your loot.</li></ul>`},
+{t:"The gameplay loop",icon:"🔁",go:null,
+ h:()=>`<div class="tloop"><div>1. Forge</div><i>→</i><div>2. Equip</div><i>→</i><div>3. Expedition</div><i>→</i><div>4. Loot + specimens</div><i>→</i><div>5. Spend it</div><i>↺</i></div>
+ <ul><li><b>Win waves</b> to get loot (to Storage) and specimens (to the Morgue).</li><li><b>Spend it:</b> forge new undead from fresh brains and bodies, equip better gear, or open an undead's <b>Profile</b> tab to spend 10/20/30 matching brains on skill ranks and 5/10/20 matching bodies on stat ranks.</li><li><b>Trade</b> junk with defeated bosses in <b>The Market</b>.</li><li><b>Push harder:</b> beat bosses to unlock new locations, then raise Difficulty for better loot.</li><li><b>Onslaught</b> is a grid battle for big squads: huge loot, no permanent deaths, but you lose everything if overrun.</li><li>Dead undead go to <b>Memoriam</b>.</li></ul>`},
+{t:"Your first run",icon:"🚀",go:0,goLabel:"Start playing",final:true,
+ h:()=>`<ol><li>Forge a <b>Nobody + Human Cadaver</b>. Name them.</li><li>Open Undead, then Body, and try <b>Auto equip</b> once you have loot.</li><li>Go to Expeditions, pick the <b>Wasteland</b>, Standard, <b>Safe</b>, and press Set off.</li><li>Keep going. Specimens unlock new brains and bodies to forge.</li></ol><p>Good luck. The dead are everywhere.</p>`}
+];
+let n=0;
+function render(){
+ const s=STEPS[n],o=$("tut");
+ o.innerHTML=`<div class="in" data-notr="1"><div class="tp">Step ${n+1} of ${STEPS.length}</div><div class="tdots">${STEPS.map((_,i)=>`<i class="${i==n?"on":i<n?"dn":""}"></i>`).join("")}</div><h1>${s.icon} ${s.t}</h1>${s.h()}
+ <div class="tnav">${n?`<button class="g" id="tprev">Back</button>`:`<button class="g" id="tskip">Skip</button>`}${n<STEPS.length-1?`<button id="tnext">Next</button>`:`<button id="tdone">${s.goLabel||"Done"}</button>`}</div>
+ ${s.go!=null&&!s.final?`<button class="g" id="tgo">${s.goLabel}</button>`:""}</div>`;
+ o.scrollTop=0;
+ const q=id=>o.querySelector("#"+id);
+ if(q("tprev"))q("tprev").onclick=()=>{n--;render()};
+ if(q("tnext"))q("tnext").onclick=()=>{n++;render()};
+ if(q("tskip"))q("tskip").onclick=close;
+ if(q("tdone"))q("tdone").onclick=()=>{close();if(s.go!=null)tab(s.go)};
+ if(q("tgo"))q("tgo").onclick=()=>{close();tab(s.go)};
+}
+function close(){$("tut").hidden=true;document.body.style.overflow="";try{localStorage.setItem("uftut","1")}catch(e){}}
+window.showTutorial=function(){n=0;render();$("tut").hidden=false;document.body.style.overflow="hidden"};
+})();
+
 let BEAT=[],MK={},MKA=null,MKM="";
 try{BEAT=JSON.parse(localStorage.getItem("ufbeat")||"[]");MK=JSON.parse(localStorage.getItem("ufmk")||"{}")}catch(e){}
 const svb=()=>{try{localStorage.setItem("ufbeat",JSON.stringify(BEAT))}catch(e){}},svk=()=>{try{localStorage.setItem("ufmk",JSON.stringify(MK))}catch(e){}};
@@ -1456,7 +1528,7 @@ $("autoup").onclick=()=>{const m=$("aemsg");
  $("autoup").textContent="✔ Confirm: spend "+p.spent+" junk";$("autoup").className="";$("autoupx").hidden=false};
 $("autoeq").addEventListener("click",()=>{if(AUP)aupReset()},true);
 /* ===== Save / Load between versions ===== */
-(function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","ufsnd","ufset"];
+(function(){const KEYS=["uf","ufi","ufe","ufdp","ufdb","ufpc","ufbc","ufm","ufbeat","ufmk","ufintro","uftut","ufsnd","ufset"];
 const g=id=>document.getElementById(id),msg=t=>{g("svMsg").textContent=t};let pend=null;
 function pack(){const d={};KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)d[k]=v}catch(e){}});return JSON.stringify({game:"mans-last-stand",ver:1,saved:new Date().toISOString(),data:d})}
 async function dl(txt){const fn="mans-last-stand-save.json";try{const d=window.claude&&await window.claude.use("downloads");if(d){await d.save({filename:fn,data:txt});return "ok"}}catch(e){if(e&&e.code==="declined")return "declined"}try{const b=new Blob([txt],{type:"application/octet-stream"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=fn;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);return "ok"}catch(e){}try{const a=document.createElement("a");a.href="data:application/octet-stream;charset=utf-8,"+encodeURIComponent(txt);a.download=fn;document.body.appendChild(a);a.click();a.remove();return "ok"}catch(e){return "fail"}}
