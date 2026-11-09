@@ -90,7 +90,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 <textarea id="svTxt" rows="4" placeholder="Save code appears here after export. To import, paste a save code here and press Import pasted code." style="width:100%;margin-top:8px;font-size:11px"></textarea>
 <button class="g" id="svCopy" style="margin-top:6px;font-size:12px;margin-right:6px">Copy code</button><button class="g" id="svPaste" style="margin-top:6px;font-size:12px">Import pasted code</button>
 <p class="s" id="svMsg" style="margin:6px 0 0"></p></div>
-<div class="tabs" id="mt"><button id="tabF" class="on">Forge</button><button id="tabU">Undead</button><button id="tabW">Expeditions</button><button id="tabS">Storage</button><button id="tabM">Morgue</button><button id="tabE">Memoriam</button><button id="tabK">The Market</button><button id="tabO">Onslaught</button><button id="tabG">Settings</button></div>
+<div class="tabs" id="mt"><button id="tabF" class="on">Forge</button><button id="tabU">Undead</button><button id="tabW">Expeditions</button><button id="tabS">Storage</button><button id="tabM">Morgue</button><button id="tabE">Memoriam</button><button id="tabK">The Market</button><button id="tabP" hidden>Multiplayer</button><button id="tabO">Onslaught</button><button id="tabG">Settings</button></div>
 <div id="tf">
 <button class="g" id="rdintro" style="margin-top:6px">📖 Read the opening</button> <button class="g" id="rdtut" style="margin-top:6px">📘 Tutorial</button>
 <label>Name your undead</label><input id="n" placeholder="e.g. Marrow" maxlength="20">
@@ -125,6 +125,7 @@ img[alt^="Shredder"]{object-position:62% 8%}img[alt^="Sprinter"]{object-position
 <div id="tset" hidden></div>
 <div id="tme" hidden></div>
 <div id="tmk" hidden></div>
+<div id="tmp" hidden></div>
 <div id="to" hidden>
 <h2 style="margin-top:6px">Onslaught</h2>
 <p class="s" style="margin:6px 0 0">A grid battlefield. Deploy up to 20 undead against waves of up to 40 enemies. Move your units, attack with their skills, then end the turn. Huge loot and no permanent deaths, but if the squad is overrun, everything it gathered is lost. Retreat to keep it.</p>
@@ -274,6 +275,7 @@ function render(c){return `<div class="card"><div class="top"><span class="nm">$
 <div class="st"><div><b>${c.dmg}</b><span>DAMAGE</span></div><div><b>${c.arm}</b><span>ARMOR</span></div></div>
 ${c.sk.map((s,i)=>`<div class="sk ${i==4?"fu":""}"><i>${s[0].replace(/Human$/,"Human Cadaver")}</i><b>${s[1]}</b> — ${skTxt(c,i)}</div>`).join("")}</div>`}
 function esc(s){return s.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+const NR=Math.random.bind(Math);let MPR=null;Math.random=()=>MPR?MPR():NR();const MP={on:false,pool:[],ctr:0,idb:0,sc:0,n:1,idx:0,lc:0,me:""},nr=f=>{const o=MPR;MPR=null;try{return f()}finally{MPR=o}},mpNM=()=>!!(MP.on&&S&&S.U[S.ai]&&S.U[S.ai].own!==MP.me),mpBot=()=>!!(MP.on&&S&&!S.over&&S.gone&&S.U[S.ai]&&S.gone[S.U[S.ai].own]);
 let col=[];
 try{col=JSON.parse(localStorage.getItem("uf")||"[]")}catch(e){}
 function save(){try{localStorage.setItem("uf",JSON.stringify(col))}catch(e){}}
@@ -416,10 +418,10 @@ const cn={},ix={};S.N.forEach(n=>cn[n.name]=(cn[n.name]||0)+1);S.N.forEach(n=>{i
 S.N.forEach(intent);S.tg={e:0,p:"chest"}}
 const isMelee=i=>i&&i.t=="Weapon"&&!FIRE.includes(i.n)&&!BOWS.includes(i.n);
 const isDW=c=>{if(c.b!="Brute")return false;const E=EQ[c.id]||{};return isMelee(item(E.handL))&&isMelee(item(E.handR))};
-function mkUnit(card){const b=bonus(card.id),nat=Math.max(0,Math.floor(card.arm/2)-(({Spewer:1,Husk:1})[card.b]||0)),tot=Math.round((30+b.h)*(HM[card.b]||1)),P2={};PT.forEach(p=>{const m=Math.max(1,Math.round(tot*PR[p]));P2[p]={h:m,m,a:nat+b.p[p]}});
-return{dths:0,rvAt:null,cons:item((EQ[card.id]||{}).cons)||null,cdm:null,dw:isDW(card),fz:card.b=="Brute"?.2:0,crit:5+(CR[card.b]||0)+b.crit,ez:EZ[card.b]||0,ezm:EZM[card.b]||0,im:card.b=="Immolated"?1:0,th:THORN[card.b]||0,tb:0,ezr:EZR[card.b]||0,tw:TW[card.b]||1,cl:Math.min(1,b.cl),b0:card,c:{...card,dmg:card.dmg+b.d,arm:card.arm+b.a},P:P2,wsum:b.w,hit:b.hit,mask:b.mask,gg:b.gg,hw:b.hw,fl:b.fl,buff:0,blk:0,ta:0,dg:0,cn:0,rg:b.rg,pr:0,ls:0,ah:0,cds:[0,0,0,0,0]}}
+function mkUnit(card,ov){const b=ov?ov.b:bonus(card.id),nat=Math.max(0,Math.floor(card.arm/2)-(({Spewer:1,Husk:1})[card.b]||0)),tot=Math.round((30+b.h)*(HM[card.b]||1)),P2={};PT.forEach(p=>{const m=Math.max(1,Math.round(tot*PR[p]));P2[p]={h:m,m,a:nat+b.p[p]}});
+return{dths:0,rvAt:null,cons:ov?ov.cons:item((EQ[card.id]||{}).cons)||null,cdm:null,dw:ov?ov.dw:isDW(card),fz:card.b=="Brute"?.2:0,crit:5+(CR[card.b]||0)+b.crit,ez:EZ[card.b]||0,ezm:EZM[card.b]||0,im:card.b=="Immolated"?1:0,th:THORN[card.b]||0,tb:0,ezr:EZR[card.b]||0,tw:TW[card.b]||1,cl:Math.min(1,b.cl),b0:card,c:{...card,dmg:card.dmg+b.d,arm:card.arm+b.a},P:P2,wsum:b.w,hit:b.hit,mask:b.mask,gg:b.gg,hw:b.hw,fl:b.fl,buff:0,blk:0,ta:0,dg:0,cn:0,rg:b.rg,pr:0,ls:0,ah:0,cds:[0,0,0,0,0]}}
 function start(){aud();const ids=party.filter(id=>col.some(c=>c.id==id)),cards=(ids.length?ids:[pick.id]).map(id=>col.find(c=>c.id==id)||pick).slice(0,3);
-S={r:1,area:$("ar").value,len:+$("ln").value,mode:+$("rk").value,res:0,lost:[],rd:1,loot:[],spec:[],auto:AUTO,end:"",U:cards.map(mkUnit),ai:0,ally:0,over:false,log:[]};spawn();log("🌍 The party arrives at the "+AR[S.area].n+". "+AR[S.area].lore.split(". ")[0]+".");intro();bt()}
+S={r:1,area:$("ar").value,len:+$("ln").value,mode:+$("rk").value,res:0,lost:[],rd:1,loot:[],spec:[],auto:AUTO,end:"",U:cards.map(c=>mkUnit(c)),ai:0,ally:0,over:false,log:[]};spawn();log("🌍 The party arrives at the "+AR[S.area].n+". "+AR[S.area].lore.split(". ")[0]+".");intro();bt()}
 function pup(){const n=party.map(id=>col.find(c=>c.id==id)).filter(Boolean);$("pty").textContent=n.length?"Party ("+n.length+"/3): "+n.map(c=>c.name).join(", "):"No party chosen: the undead selected in the Undead tab fights alone.";plist()}
 function plist(){const el=$("pl");if(!el)return;el.innerHTML=col.length?col.map(c=>{const i=party.indexOf(c.id);return `<button class="${i>=0?"":"g"}" data-pm="${c.id}" style="text-align:left;margin-top:6px">${i>=0?"✔ ":""}${esc(c.name)} <small>· ${c.p} · ${BN(c.b)}</small></button>`}).join(""):'<p class="s">Forge an undead first.</p>'}
 $("pl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;const id=Number(b.dataset.pm),i=party.indexOf(id);if(i>=0)party.splice(i,1);else if(party.length<3)party.push(id);pup()};
@@ -444,7 +446,7 @@ log("   "+(cr?"💥 CRITICAL! ":"")+u.c.name+" "+pk(HV[p])+" "+n.name+"'s "+pnb(
 function hordeHit(d,msg){log("   🧟 "+msg+"!");S.N.forEach(m=>{if(dead(m.E))return;const p=pk(PT.filter(q=>m.E[q].h>0)),E=m.E[p],x=Math.max(1,d-Math.max(0,E.a-1));E.h=Math.max(0,E.h-x);fxE("claw",m,m,{d:x,die:dead(m.E),p});log("      "+m.name+"'s "+pnb(m.bt,p).toLowerCase()+" is torn for "+x+" ("+E.h+"/"+E.m+")"+(E.h<=0?" — destroyed!":""))})}
 function run(u,n,sp){const A=sp.fx!=null||sp.d!=null;let ok=1;const p0=S.tg.p;
 if(A){const gb=u.c.dmg-u.b0.dmg;let base=typeof sp.fx=="function"?sp.fx():sp.fx!=null?sp.fx+gb:u.c.dmg+sp.d;base=Math.round(base*(sp.mu||1));if(u.cdm&&u.cdm.n>0){base+=u.cdm.v;u.cdm.n--}
-let L=Array(sp.n||1).fill(p0);if(sp.sp){const o=PT.filter(p=>p!=p0&&n.E[p].h>0).sort(()=>Math.random()-.5);L=[p0,...o].slice(0,sp.sp)}
+let L=Array(sp.n||1).fill(p0);if(sp.sp){const o=PT.filter(p=>p!=p0&&n.E[p].h>0).map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);L=[p0,...o].slice(0,sp.sp)}
 let first=1;ok=0;for(const p of L){let d=base+(first?u.buff:0);first=0;if(sp.wb&&n.E[p].h<n.E[p].m)d+=sp.wb;if(strike(u,n,p,d,sp))ok=1}
 let cf=u.cl||0;const oth=S.N.filter(m=>m!==n&&!dead(m.E));if(u.hw&&oth.length&&Math.random()<.3){cf=Math.max(cf,.5);log("   🪓 The heavy weapon cleaves through the whole group!")}if(cf)for(const m of oth)strike(u,m,p0,Math.max(1,Math.round(base*cf)),sp);
 if(u.dw&&n.E[p0].h>0){log("   ⚔ Dual wield: a second swing follows!");strike(u,n,p0,Math.max(1,Math.round(base*.6)),sp)}
@@ -511,7 +513,7 @@ function dots(){selfBurn();S.N.forEach(n=>{n.dots=n.dots.filter(x=>{const E=n.E[
 function intro(){log("⚠ Wave "+S.r+": "+S.N.length+" enem"+(S.N.length>1?"ies":"y")+" — "+S.N.map(n=>n.name).join(", ")+".");const bo=S.N.find(n=>n.boss);if(bo){log("👑 BOSS: "+bo.name+", "+bo.title+"!");{const pu=pk(S.U.filter(alive))||S.U[0];log("🗣 “"+bo.hi.replace(/\{n\}/g,pu.c.name).replace(/\{p\}/g,pu.c.p).replace(/\{b\}/g,BN(pu.c.b))+"”")}}log("— Wave "+S.r+", Round "+S.rd+" —")}
 function endExp(why){S.over=true;S.end=why;log("🏳 The party retreats from the "+AR[S.area].n+" with what it found.");resolveDeaths();bt()}
 function lose(){xsd("lose");S.over=true;S.end="Defeated";log("☠ Your party has fallen at wave "+S.r+".");resolveDeaths();bt()}
-function victory(){xsd("win");const its=[];for(let i=0;i<S.N.length;i++)if(Math.random()<MD[S.mode].keep*(AR[S.area].dr||1))its.push(drop(S.r,S.area,cfg()));if(S.N.some(n=>n.boss)){for(let i=0,bn=Math.round(3*(AR[S.area].bh||1));i<bn;i++)its.push(drop(S.r,S.area,{...cfg(),rb:cfg().rb+.3}));log("👑 The boss falls! Its hoard spills out.");const bd=S.N.find(n=>n.boss);if(bd)log("🗣 "+bd.name+" (dying): “"+bd.dd+"”");if(!BEAT.includes(S.area)){const ob=openLocs();BEAT.push(S.area);unl(ob);svb();MK[S.area]=genStock(S.area);svk();log("🛒 "+AR[S.area].boss.n+" will now trade with you. Visit The Market.")}}if(!its.length)its.push(drop(S.r,S.area,cfg()));S.loot.push(...its);
+function victory(){xsd("win");let its=[];for(let i=0;i<S.N.length;i++)if(Math.random()<MD[S.mode].keep*(AR[S.area].dr||1))its.push(drop(S.r,S.area,cfg()));if(S.N.some(n=>n.boss)){for(let i=0,bn=Math.round(3*(AR[S.area].bh||1));i<bn;i++)its.push(drop(S.r,S.area,{...cfg(),rb:cfg().rb+.3}));log("👑 The boss falls! Its hoard spills out.");const bd=S.N.find(n=>n.boss);if(bd)log("🗣 "+bd.name+" (dying): “"+bd.dd+"”");if(!BEAT.includes(S.area))nr(()=>{const ob=openLocs();BEAT.push(S.area);unl(ob);svb();MK[S.area]=genStock(S.area);svk();log("🛒 "+AR[S.area].boss.n+" will now trade with you. Visit The Market.")})}if(!its.length)its.push(drop(S.r,S.area,cfg()));S.loot.push(...(MPR?mpShare(its):its));
 log("🎁 Loot ("+its.length+"): "+its.slice(0,4).map(lab).join(", ")+(its.length>4?" +"+(its.length-4)+" more":""));
 specimens();if(S.r>=S.len){S.over=true;S.end="Complete";resolveDeaths();S.U.forEach(u=>{if(alive(u))heal(6,u.P)});log("🏁 Expedition complete! The party heads home with everything it found.");return bt()}S.r++;S.U.forEach(u=>{if(alive(u))heal(6,u.P);u.blk=0;u.ta=0;u.dg=0;u.cn=0});log("🏆 Wave cleared! The living undead catch their breath and recover 6 HP.");S.rd=1;spawn();intro();event();
 if(allDown())return lose();S.ai=S.U.findIndex(alive);S.ally=S.ai;if(S.ai<0){S.rd++;return enemyPhase()}bt()}
@@ -573,7 +575,7 @@ if(sp.hl&&ratio<.6)sc=Math.max(sc,40+(1-ratio)*20);
 if((sp.bl||sp.ta||sp.dg||sp.cn)&&ratio<.5)sc=Math.max(sc,30);
 if(sp.ls||sp.pr||sp.rg)sc=Math.max(sc,12);
 if(sc>bs){bs=sc;best=i}}return best}
-function autoStep(){AT=null;if(!S||S.over||!S.auto)return;const u=S.U[S.ai];if(!u)return;
+function autoStep(force){AT=null;if(!S||S.over||(!S.auto&&!force))return;const u=S.U[S.ai];if(!u)return;
 if(u.cons){const g=CONS[u.cons.n],lv=S.U.filter(alive).sort((a,b)=>sumL(a.P)[0]/sumL(a.P)[1]-sumL(b.P)[0]/sumL(b.P)[1])[0],ra=sumL(lv.P)[0]/sumL(lv.P)[1];
 const go=g.k=="heal"?ra<.5:g.k=="armor"?ra<.75:g.k=="cd"?u.cds.filter(c=>c>0).length>=3:true;if(go){if(g.k=="heal"||g.k=="armor")S.ally=S.U.indexOf(lv);useCons();return}}
 const L=S.N.map((n,e)=>[n,e]).filter(([n])=>!dead(n.E));if(!L.length)return;
@@ -593,11 +595,11 @@ delete EQ[id];col=col.filter(x=>x.id!=id);party=party.filter(x=>x!=id);
 MEM.unshift({c,why,area:S?S.area:"",wave:S?S.r:0,mode:S?S.mode:0,gear,t:Date.now()});
 if(pick&&pick.id==id){pick=cur=null;$("out").innerHTML=""}
 save();sv();svm();return gear}
-function resolveDeaths(){if(S.res)return;S.res=1;restockAll();
+function resolveDeaths(){if(S.res)return;S.res=1;nr(restockAll);
 S.U.forEach(u=>{let die=false,why="";
 if(S.mode==1&&S.end=="Defeated"){die=Math.random()<.5;why="Lost when the party was defeated on a Threatening expedition"}
 if(S.mode==2&&dead(u.P)){die=true;why="Fell on a Deadly expedition"}
-if(die){const g=bury(u.b0.id,why,S.mode==2);S.lost.push({name:u.c.name,gear:g});log("💀 "+u.c.name+" is lost forever"+(S.mode==2&&g?", along with "+g+" piece"+(g==1?"":"s")+" of gear":"")+".")}});
+if(die){const g=MP.on&&u.own!==MP.me?(S.mode==2?0:0):bury(u.b0.oid??u.b0.id,why,S.mode==2);S.lost.push({name:u.c.name,gear:g});log("💀 "+u.c.name+" is lost forever"+(S.mode==2&&g?", along with "+g+" piece"+(g==1?"":"s")+" of gear":"")+".")}});
 if(S.lost.length){list();pup()}}
 const EPI=["Rest in pieces.","They did not go quietly. Then again, they never did.","Gone, but the collection remembers.","Last seen walking toward the noise.","Another name for the wall."];
 function memoriam(){$("tme").innerHTML=`<h2 style="margin-top:6px">Memoriam</h2><p class="s" style="margin:6px 0 0">Undead lost on Threatening and Deadly expeditions end up here for good.</p>`+(MEM.length?MEM.map(m=>{const c=m.c;return `<div class="card" style="margin-top:10px">${c.img?`<img src="${c.img}" alt="" style="width:96px;border-radius:8px;border:1px solid var(--line);float:right;margin:0 0 8px 10px">`:""}<b>${esc(c.name)}</b><p class="s" style="margin:4px 0">${esc(c.p)} · ${esc(BN(c.b))}${c.g?" · "+esc(c.g):""}</p><p class="s" style="margin:4px 0;color:var(--acc)">☠ ${esc(m.why)}${m.area&&AR[m.area]?" at the "+AR[m.area].n+", wave "+m.wave:""}${m.gear?". "+m.gear+" gear lost with them.":"."}</p>${c.bg?`<p style="margin:8px 0 0;line-height:1.6;white-space:pre-wrap;font-size:14px">${esc(c.bg)}</p>`:""}<p class="s" style="margin:8px 0 0;font-style:italic;clear:both">${EPI[(m.t||0)%EPI.length]}</p></div>`}).join(""):'<p class="s" style="margin-top:14px">Nobody has died yet. The collection is complete, for now.</p>')}
@@ -606,7 +608,7 @@ const rows=Object.entries(g).map(([k,n])=>{const [r,t]=k.split("|");return `<div
 const sc={};s.spec.forEach(x=>sc[x]=(sc[x]||0)+1);const sp=Object.entries(sc).map(([k,n])=>`<div class="it"><span>${esc(k)}</span><span>×${n}</span></div>`).join("");
 const cl=s.end=="Complete"?s.len:s.r-1;
 return `<div class="card" style="margin-top:12px"><b>🏁 Expedition report: ${s.end}</b><p class="s" style="margin:6px 0">${AR[s.area].n} · waves cleared ${cl}${s.len<99?"/"+s.len:""} · ${L.length} loot item${L.length==1?"":"s"} (added to Storage) · Risk: ${MD[s.mode].n}</p>${s.lost.length?`<p class="s" style="margin:0 0 8px;color:var(--acc)">💀 Lost forever: ${s.lost.map(x=>esc(x.name)+(x.gear?" (+"+x.gear+" gear lost)":"")).join(", ")}</p>`:""}<b style="font-size:13px">Loot found</b>${rows}${sp?'<b style="font-size:13px;display:block;margin-top:10px">Specimens found (added to Morgue)</b>'+sp:""}</div>`}
-function bt(){bt0();const lg=$("bt").querySelector(".lg");if(lg)lg.scrollTop=lg.scrollHeight;xflush();clearTimeout(AT);if(S&&S.auto&&!S.over)AT=setTimeout(autoStep,Math.max(900,XB-Date.now()+250))}
+function bt(){bt0();const lg=$("bt").querySelector(".lg");if(lg)lg.scrollTop=lg.scrollHeight;xflush();clearTimeout(AT);if(S&&!S.over&&(S.auto||mpBot()))AT=setTimeout(MP.on?mpAuto:autoStep,Math.max(900,XB-Date.now()+250))}
 function bt0(){const s=S,u=s.U[s.ai]||s.U[0],c=u.c;
 const tm=new Set(s.N.filter(n=>!dead(n.E)&&!n.skip&&!n.t.sup&&n.et).map(n=>n.et.u+":"+n.et.p));
 const grid='display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-top:6px';
@@ -622,8 +624,8 @@ $("bt").innerHTML=`<div class="card"><div class="top"><span class="nm">Wave ${s.
 <b style="font-size:13px;display:block;margin-top:12px">Enemies</b><div style="${grid}">${foes}</div>
 ${stt?`<p style="font-size:12px;color:var(--mut);margin:8px 0 0">${esc(c.name)}: ${stt}</p>`:""}
 <div class="lg">${s.log.slice(-80).map(esc).join("<br>")}</div>
-${s.over?report(s)+'<button id="again">New expedition</button>':`<div class="tabs"><button class="${s.auto?"on":""}" data-auto="1">Auto: ${s.auto?"ON":"OFF"}</button><button class="g" data-ret="1">Retreat</button><button class="g" data-snx="1">${SND?"🔊":"🔇"}</button></div>${u.cons?`<button class="sb" data-use="1" ${s.auto?"disabled":""}>🧪 Use ${esc(u.cons.n)}<small>${esc(consTxt(u.cons))}</small></button>`:""}<p style="font-size:12px;color:var(--mut);margin:0 0 4px"><b>${esc(c.name)}</b> acts. Target ${esc(T.name)} · crit ${u.crit}% (hit chance; weapon weight ${u.wsum} = −${3*u.wsum}%${u.hit?", bonus +"+u.hit+"%":""}):</p><div class="tabs">${PT.map(p=>`<button data-t="${p}" class="${s.tg.p==p?"on":""}" ${T.E[p].h<=0?"disabled":""}>${pnb(T.bt,p)}<br><small>${hc(u,p)}%</small></button>`).join("")}</div>`+c.sk.map((k,i)=>{const cd=u.cds[i];return `<button class="sb" data-i="${i}" ${cd>0||s.auto?"disabled":""}>${EFX[k[1]]&&EFX[k[1]].al?"🤝 ":""}${esc(k[1])}<small>${esc(skTxt(c,i))}${cd>50?" · used":cd>0?" · cooldown "+cd:""}</small></button>`}).join("")}</div>`}
-const uid=()=>Date.now()+Math.floor(Math.random()*1e6),pk=a=>a[Math.floor(Math.random()*a.length)],pkw=a=>{const W=a.map(u=>u.tw||1);let r=Math.random()*W.reduce((x,y)=>x+y,0);for(let i=0;i<a.length;i++)if((r-=W[i])<0)return a[i];return a[a.length-1]};
+${s.over?report(s)+'<button id="again">New expedition</button>':`<div class="tabs"><button class="${s.auto?"on":""}" data-auto="1">Auto: ${s.auto?"ON":"OFF"}</button><button class="g" data-ret="1" ${MP.on&&!MP.host?"disabled":""}>Retreat</button><button class="g" data-snx="1">${SND?"🔊":"🔇"}</button></div>${u.cons?`<button class="sb" data-use="1" ${s.auto||mpNM()?"disabled":""}>🧪 Use ${esc(u.cons.n)}<small>${esc(consTxt(u.cons))}</small></button>`:""}<p style="font-size:12px;color:var(--mut);margin:0 0 4px">${MP.on&&u.own?"🎮 "+(u.own===MP.me?"Your turn":esc(mpName(u.own))+"'s turn")+" · ":""}<b>${esc(c.name)}</b> acts. Target ${esc(T.name)} · crit ${u.crit}% (hit chance; weapon weight ${u.wsum} = −${3*u.wsum}%${u.hit?", bonus +"+u.hit+"%":""}):</p><div class="tabs">${PT.map(p=>`<button data-t="${p}" class="${s.tg.p==p?"on":""}" ${T.E[p].h<=0||mpNM()?"disabled":""}>${pnb(T.bt,p)}<br><small>${hc(u,p)}%</small></button>`).join("")}</div>`+c.sk.map((k,i)=>{const cd=u.cds[i];return `<button class="sb" data-i="${i}" ${cd>0||s.auto||mpNM()?"disabled":""}>${EFX[k[1]]&&EFX[k[1]].al?"🤝 ":""}${esc(k[1])}<small>${esc(skTxt(c,i))}${cd>50?" · used":cd>0?" · cooldown "+cd:""}</small></button>`}).join("")}</div>`}
+const uid=()=>MPR?MP.idb+(++MP.ctr):Date.now()+Math.floor(Math.random()*1e6),pk=a=>a[Math.floor(Math.random()*a.length)],pkw=a=>{const W=a.map(u=>u.tw||1);let r=Math.random()*W.reduce((x,y)=>x+y,0);for(let i=0;i<a.length;i++)if((r-=W[i])<0)return a[i];return a[a.length-1]};
 col.forEach(c=>{if(!c.id)c.id=uid()});save();
 let INV=[],EQ={},sel=null,del=0;
 try{INV=JSON.parse(localStorage.getItem("ufi")||"[]");EQ=JSON.parse(localStorage.getItem("ufe")||"{}")}catch(e){}
@@ -654,7 +656,7 @@ if(t=="Gear"){if(C.sg&&Math.random()<C.sg)return pk(Object.keys(SLG));return pk(
 if(t=="Implant")return pk(Object.keys(IM));return pk(IT[t])}
 function drop(r,a,o){a=a||"wasteland";const C=o||AR[a],W={...C.w,Consumable:C.cons==null?10:C.cons};let y=Math.random()*Object.values(W).reduce((u,v)=>u+v,0),t="Junk";for(const k in W){if((y-=W[k])<0){t=k;break}}
 const q=Math.random()+r*.05+C.rb,rar=C.epc&&Math.random()<C.epc?4:Math.max(C.minr||0,q<.7?1:q<.93?2:((C.ep||C.ee)&&q>=1.25?4:3)),s=t=="Armor"?pk(Object.keys(IT.Armor)):t=="Implant"?"implant":t=="Consumable"?"cons":null;
-const it={id:uid(),t,n:pickName(t,s,C),rar,v:t=="Gear"?3*rar:rar};if(s)it.s=s;if(t=="Gear"&&HG.includes(it.n)){it.s="head";if(it.n=="Night Goggles")it.v=rar}if(t=="Gear"&&SLG[it.n]){it.s=SLG[it.n].s;it.v=SLG[it.n].f(rar)}if(t=="Implant"){const k=IM[it.n][0];it.v=k=="p"?Math.ceil(rar/2):k=="d"?rar:4*rar}if(t=="Consumable")it.v=CONS[it.n].f(rar);INV.push(it);sv();return it}
+const it={id:uid(),t,n:pickName(t,s,C),rar,v:t=="Gear"?3*rar:rar};if(s)it.s=s;if(t=="Gear"&&HG.includes(it.n)){it.s="head";if(it.n=="Night Goggles")it.v=rar}if(t=="Gear"&&SLG[it.n]){it.s=SLG[it.n].s;it.v=SLG[it.n].f(rar)}if(t=="Implant"){const k=IM[it.n][0];it.v=k=="p"?Math.ceil(rar/2):k=="d"?rar:4*rar}if(t=="Consumable")it.v=CONS[it.n].f(rar);if(MPR)MP.pool.push(it);else{INV.push(it);sv()}return it}
 function worn(id){for(const u in EQ)for(const s in EQ[u])if(EQ[u][s]==id){const c=col.find(c=>c.id==u);if(c)return{c,s}}return null}
 function unwear(id){for(const k in EQ)for(const z in EQ[k])if(EQ[k][z]==id)delete EQ[k][z]}
 function equip(u,s,id){unwear(id);(EQ[u]=EQ[u]||{})[s]=id;sv()}
@@ -784,10 +786,10 @@ const sv=()=>{try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");q.vol=
 $("volr").oninput=e=>{VOL=+e.target.value/100;$("volv").textContent=Math.round(VOL*100)+"%";if(AC&&AC._m)AC._m.gain.value=.32*VOL;sv()};
 $("voltest").onclick=()=>{const a=aud();if(a&&SK&&SK.buff)try{SK.buff(a,a.currentTime)}catch(e){}};
 $("settut").onclick=()=>showTutorial();$("langs").onchange=e=>{window.UFI18N&&UFI18N.set(e.target.value);setUI()}}
-function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to","tset"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO","tabG"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI();if(n==8)setUI()}
-$("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);$("tabG").onclick=()=>tab(8);
-$("fight").onclick=()=>{party=party.filter(id=>col.some(c=>c.id==id));if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();xView(false)};
-$("bt").onclick=e=>{if(e.target.id=="again")return xBack();if(!S||S.over)return;if(e.target.closest("[data-use]")){useCons();return}const ua=e.target.closest("[data-ua]");if(ua&&alive(S.U[+ua.dataset.ua])){S.ally=+ua.dataset.ua;return bt()}if(e.target.closest("[data-auto]")){S.auto=AUTO=!S.auto;return bt()}if(e.target.closest("[data-snx]")){SND=!SND;try{localStorage.setItem("ufsnd",SND?"1":"0")}catch(x){}if(SND)aud();return bt()}if(e.target.closest("[data-ret]")){clearTimeout(AT);return endExp("Retreated")}const lp=e.target.closest("[data-lp]");if(lp){const ee=+lp.dataset.le,q=lp.dataset.lp;if(!dead(S.N[ee].E)&&S.N[ee].E[q].h>0){S.tg={e:ee,p:q};bt()}return}const t=e.target.closest("[data-t]");if(t&&!t.disabled){S.tg.p=t.dataset.t;return bt()}
+function tab(n){["tf","tu","tw","ts","tmo","tme","tmk","to","tset","tmp"].forEach((id,i)=>$(id).hidden=i!=n);["tabF","tabU","tabW","tabS","tabM","tabE","tabK","tabO","tabG","tabP"].forEach((id,i)=>$(id).className=i==n?"on":"");if(n==1)list();if(n==2){locs();pup();rkd()}if(n==3)inv();if(n==4)morge();if(n==5)memoriam();if(n==6)market();if(n==7)onsUI();if(n==8)setUI();if(n==9)mpUI()}
+$("tabF").onclick=()=>tab(0);$("tabU").onclick=()=>tab(1);$("tabW").onclick=()=>tab(2);$("tabS").onclick=()=>tab(3);$("tabM").onclick=()=>tab(4);$("tabE").onclick=()=>tab(5);$("tabK").onclick=()=>tab(6);$("tabO").onclick=()=>tab(7);$("tabG").onclick=()=>tab(8);$("tabP").onclick=()=>tab(9);
+$("fight").onclick=()=>{if(MP.on)return;party=party.filter(id=>col.some(c=>c.id==id));if(!party.length&&!pick){$("pty").textContent="Choose at least one undead for the party first.";return}start();xView(false)};
+$("bt").onclick=e=>{if(e.target.id=="again"){if(MP.on)mpEnd();return xBack()}if(!S||S.over)return;if(MP.on)return mpClick(e);if(e.target.closest("[data-use]")){useCons();return}const ua=e.target.closest("[data-ua]");if(ua&&alive(S.U[+ua.dataset.ua])){S.ally=+ua.dataset.ua;return bt()}if(e.target.closest("[data-auto]")){S.auto=AUTO=!S.auto;return bt()}if(e.target.closest("[data-snx]")){SND=!SND;try{localStorage.setItem("ufsnd",SND?"1":"0")}catch(x){}if(SND)aud();return bt()}if(e.target.closest("[data-ret]")){clearTimeout(AT);return endExp("Retreated")}const lp=e.target.closest("[data-lp]");if(lp){const ee=+lp.dataset.le,q=lp.dataset.lp;if(!dead(S.N[ee].E)&&S.N[ee].E[q].h>0){S.tg={e:ee,p:q};bt()}return}const t=e.target.closest("[data-t]");if(t&&!t.disabled){S.tg.p=t.dataset.t;return bt()}
 const b=e.target.closest(".sb");if(b){if(!b.disabled)act(+b.dataset.i);return}
 const d=e.target.closest("[data-e]");if(d&&!dead(S.N[+d.dataset.e].E)){S.tg={e:+d.dataset.e,p:"chest"};bt()}};
 for(const k in AR)$("ar").add(new Option(AR[k].n,k));$("ar").onchange=()=>{$("ard").textContent=AR[$("ar").value].d};$("ar").onchange();
@@ -811,7 +813,7 @@ $("mx").hidden=bs.value!="Chimeric Human";bti();pti()}
 const goOrig=$("go").onclick;
 $("go").onclick=()=>{rescue();const p=$("p").value,b=$("b").value;if(!profOk(p,b)){$("fmsg").textContent=isAnimalB(b)?"Animal bodies can only take animal brains.":"Animal brains can only be forged onto animal bodies.";return}if(!(cp(p)>0&&cb(b)>0)){$("fmsg").textContent="You need at least 1 of a brain and 1 of a body type in Morgue to forge an undead.";return}
 $("fmsg").textContent="Forging costs 1 of the chosen brain and 1 of the body type (Nobody and Human Cadaver are unlimited).";if(p!="Nobody"&&p!="Stray")PC[p]--;if(b!="Human")BC[b]--;svc();GOK=1;goOrig();fillSel()};
-function specimens(){const got=[];for(let i=0;i<S.N.length;i++){if(Math.random()>=.35*(AR[S.area].spr||1))continue;const sb=AR[S.area].sb,spf=AR[S.area].sp,bias=sb&&Math.random()<sb.p,pb=!bias&&spf&&Math.random()<spf.p,isP=bias?false:pb?true:Math.random()<(AR[S.area].pp||.8),k=bias?(Array.isArray(sb.k)?pk(sb.k):sb.k):pb?pk(spf.k):pk(Object.keys(isP?P:B).filter(x=>x!=(isP?"Nobody":"Human")&&!(isP&&AP.has(x)))),C=isP?PC:BC,D=isP?DP:DB;C[k]=(C[k]||0)+1;if(!D.includes(k))D.push(k);got.push(isP?k:BN(k))}
+function specimens(){const got=[];for(let i=0;i<S.N.length;i++){if(Math.random()>=.35*(AR[S.area].spr||1))continue;const sb=AR[S.area].sb,spf=AR[S.area].sp,bias=sb&&Math.random()<sb.p,pb=!bias&&spf&&Math.random()<spf.p,isP=bias?false:pb?true:Math.random()<(AR[S.area].pp||.8),k=bias?(Array.isArray(sb.k)?pk(sb.k):sb.k):pb?pk(spf.k):pk(Object.keys(isP?P:B).filter(x=>x!=(isP?"Nobody":"Human")&&!(isP&&AP.has(x)))),C=isP?PC:BC,D=isP?DP:DB;if(MPR&&(MP.sc++%MP.n)!==MP.idx)continue;C[k]=(C[k]||0)+1;if(!D.includes(k))D.push(k);got.push(isP?k:BN(k))}
 if(got.length){S.spec.push(...got);svd();svc();fillSel();log("🧬 Specimens found: "+got.join(", ")+" (see Morgue).")}}
 function pti(){const k=$("p").value,o=P[k];if(!o)return;$("pti").innerHTML=`<div class="card" style="margin-top:10px"><b>${esc(k)}</b><p class="s" style="margin:6px 0;font-style:italic">${esc(LP[k]||"")}</p><p class="s" style="margin:0 0 6px">Base +${o.d} damage, +${o.a} armor</p><ul style="margin:0;padding-left:18px;font-size:14px">${o.s.map(x=>`<li><b>${esc(x[0])}</b>: ${esc(skd(x[0],x[1]))}</li>`).join("")}<li>Fusion theme: ${esc(o.t)}</li></ul></div>`}
 $("p").onchange=pti;
@@ -1008,7 +1010,7 @@ log("   "+t.e+" "+M.h[1]+" hurt "+nm+"'s "+PN[p].toLowerCase()+" for "+d+". "+PN
 let VOL=1;try{const q=JSON.parse(localStorage.getItem("ufset")||"{}");if(typeof q.vol=="number")VOL=Math.max(0,Math.min(1,q.vol))}catch(e){}
 let AC=null,SND=true;try{SND=localStorage.getItem("ufsnd")!=="0"}catch(e){}
 function aud(){if(!SND)return null;try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();const m=AC.createGain();m.gain.value=.32*VOL;m.connect(AC.destination);AC._m=m}if(AC.state=="suspended")AC.resume();return AC}catch(e){return null}}
-const Nz=(a,t,d,ty,f0,f1,v,q)=>{const n=Math.max(1,Math.floor(a.sampleRate*d)),b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=Math.random()*2-1;const s=a.createBufferSource();s.buffer=b;const fl=a.createBiquadFilter(),g=a.createGain();fl.type=ty;fl.frequency.setValueAtTime(f0,t);if(f1)fl.frequency.exponentialRampToValueAtTime(f1,t+d);if(q)fl.Q.value=q;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(g);g.connect(a._m);s.start(t);s.stop(t+d+.02)};
+const Nz=(a,t,d,ty,f0,f1,v,q)=>{const n=Math.max(1,Math.floor(a.sampleRate*d)),b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=NR()*2-1;const s=a.createBufferSource();s.buffer=b;const fl=a.createBiquadFilter(),g=a.createGain();fl.type=ty;fl.frequency.setValueAtTime(f0,t);if(f1)fl.frequency.exponentialRampToValueAtTime(f1,t+d);if(q)fl.Q.value=q;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(g);g.connect(a._m);s.start(t);s.stop(t+d+.02)};
 const Tn=(a,t,d,ty,f0,f1,v)=>{const o=a.createOscillator(),g=a.createGain();o.type=ty;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a._m);o.start(t);o.stop(t+d+.02)};
 const SK={punch:(a,t)=>{Nz(a,t,.08,"lowpass",900,200,.7);Tn(a,t,.1,"sine",140,50,.8)},
 thud:(a,t)=>{Nz(a,t,.13,"lowpass",600,150,.8);Tn(a,t,.17,"sine",90,40,.9)},
@@ -1018,9 +1020,9 @@ gun:(a,t)=>{Nz(a,t,.11,"highpass",1800,600,.9);Tn(a,t,.08,"sine",200,50,.8)},
 shotgun:(a,t)=>{Nz(a,t,.3,"lowpass",2600,300,1);Tn(a,t,.22,"sine",110,35,1)},
 bow:(a,t)=>{Tn(a,t,.2,"triangle",320,160,.5);Nz(a,t+.05,.15,"bandpass",1200,2500,.25,3)},
 spit:(a,t)=>{Nz(a,t,.24,"bandpass",500,1200,.5,6);Tn(a,t,.2,"sine",600,200,.35);Tn(a,t+.08,.1,"sine",400,900,.2)},
-poison:(a,t)=>{for(let i=0;i<4;i++)Tn(a,t+i*.06,.06,"sine",300+Math.random()*500,0,.3)},
+poison:(a,t)=>{for(let i=0;i<4;i++)Tn(a,t+i*.06,.06,"sine",300+NR()*500,0,.3)},
 fire:(a,t)=>{Nz(a,t,.45,"lowpass",300,2500,.55);for(let i=0;i<6;i++)Nz(a,t+i*.06,.03,"highpass",3000,0,.3)},
-zap:(a,t)=>{for(let i=0;i<7;i++)Tn(a,t+i*.03,.04,"sawtooth",200+Math.random()*1800,0,.3)},
+zap:(a,t)=>{for(let i=0;i<7;i++)Tn(a,t+i*.03,.04,"sawtooth",200+NR()*1800,0,.3)},
 boom:(a,t)=>{Nz(a,t,.5,"lowpass",500,60,1);Tn(a,t,.45,"sine",80,22,1.1)},
 bite:(a,t)=>{Nz(a,t,.05,"bandpass",1500,0,.6,5);Nz(a,t+.07,.06,"bandpass",900,0,.6,5);Tn(a,t,.1,"square",180,90,.15)},
 claw:(a,t)=>{Nz(a,t,.13,"highpass",2000,6000,.45);Nz(a,t+.06,.1,"highpass",1500,4500,.4)},
@@ -1039,8 +1041,8 @@ SK.open=(a,t)=>{Tn(a,t,.35,"sawtooth",150,260,.12);Nz(a,t,.3,"bandpass",500,900,
 SK.sdoor=(a,t)=>{Tn(a,t,.12,"triangle",160,70,.7);Nz(a,t,.1,"lowpass",900,200,.5)};
 SK.swin=(a,t)=>{Nz(a,t,.08,"highpass",4500,0,.4);Tn(a,t,.18,"sine",2600,2200,.25)};
 SK.swall=(a,t)=>{Tn(a,t,.2,"sine",70,35,.9);Nz(a,t,.12,"lowpass",450,120,.6)};
-SK.bdoor=(a,t)=>{Nz(a,t,.35,"bandpass",900,350,.9,1.5);for(let i=0;i<4;i++)Tn(a,t+i*.05,.05,"square",300+Math.random()*400,150,.15)};
-SK.bwin=(a,t)=>{Nz(a,t,.3,"highpass",3500,6000,.7);for(let i=0;i<7;i++)Tn(a,t+.05+i*.04,.08,"sine",2200+Math.random()*2500,0,.15)};
+SK.bdoor=(a,t)=>{Nz(a,t,.35,"bandpass",900,350,.9,1.5);for(let i=0;i<4;i++)Tn(a,t+i*.05,.05,"square",300+NR()*400,150,.15)};
+SK.bwin=(a,t)=>{Nz(a,t,.3,"highpass",3500,6000,.7);for(let i=0;i<7;i++)Tn(a,t+.05+i*.04,.08,"sine",2200+NR()*2500,0,.15)};
 SK.bwall=(a,t)=>{Nz(a,t,.7,"lowpass",600,80,1);Tn(a,t,.6,"sine",60,22,1);Nz(a,t+.15,.3,"bandpass",1200,400,.4,1)};
 const RK=["gun","shotgun","bow","spit","poison","fire","zap","howl"];
 const SKF={"Burning Grasp":"fire","Smoldering Hide":"thud","Sprint Strike":"claw","Weave":"thud","Glass Slash":"slash","Rebar Brace":"thud","Festering Bite":"bite","Pounce":"claw","Drag Down":"claw","Play Dead":"thud","Molotov":"fire","Fire Breath":"fire","Flammable Spirits":"fire","Open Flame":"fire","Radiation Burst":"zap","Acid Spew":"spit","Acid Flask":"spit","Overdose":"poison","Poison Berries":"poison","Arc Jump":"zap","Short Circuit":"zap","Defibrillator":"zap","Breaching Charge":"boom","Shrapnel Grenade":"boom","Sapper Charge":"boom","Frag Toss":"boom","Gnaw":"bite","Rending Claws":"claw","Release the Dog":"bite","Call the Horde":"howl","Earthshaker":"heavy","Scythe Sweep":"slash","Knife Cascade":"slash","Wheel of Peril":"slash","Spinning Blade":"slash","Sustained Fire":"gun","Suppressing Burst":"gun","Headshot":"gun","Silenced Shot":"gun","Quick Draw":"gun","Tracked Shot":"gun","Piercing Arrow":"bow","Volley":"bow"};
@@ -1083,7 +1085,7 @@ const IM={punch:"👊",thud:"💢",heavy:"💥",gun:"✦",shotgun:"💥",bow:"�
 if(snd){const ac=aud();if(ac){const t=ac.currentTime+.01,im=t+dur/1000;if(v.miss)SK.miss(ac,t);else if(v.dodge)SK.dodge(ac,t);else{SK[K]&&SK[K](ac,t);if(rng&&!v.sup)SK.imp(ac,im);if(v.crit)SK.crit(ac,im);if(v.die)SK.die(ac,im+.08);if(v.sk&&SK[v.sk])SK[v.sk](ac,im+.02);if(v.bk&&SK[v.bk])SK[v.bk](ac,im+.12)}}}
 if(!v.sup)ring(v.a,"#fff",240);
 if(rng){if(K=="gun"||K=="shotgun"){burst("✦",16,"#ffd84a",A[0]+Math.cos(ang*Math.PI/180)*cw*.5,A[1]+Math.sin(ang*Math.PI/180)*cw*.5,140);const n=K=="shotgun"?3:1;for(let i=0;i<n;i++){const off=(i-(n-1)/2)*9,ox=-Math.sin(ang*Math.PI/180)*off,oy=Math.cos(ang*Math.PI/180)*off,el=mk("","width:16px;height:3px;border-radius:2px;background:#ffd84a;box-shadow:0 0 6px #ffd84a;transform:translate(-50%,-50%) rotate("+ang+"deg);",A[0],A[1],dur);el.animate([{left:A[0]+"px",top:A[1]+"px"},{left:(T[0]+ox)+"px",top:(T[1]+oy)+"px"}],{duration:dur,easing:"linear",fill:"forwards"})}}
-else if(K=="zap"){const sv=document.createElementNS("http://www.w3.org/2000/svg","svg");sv.setAttribute("style","position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible");let pts=[];for(let i=0;i<=7;i++){const f=i/7,jx=i&&i<7?(Math.random()-.5)*pp*.5:0,jy=i&&i<7?(Math.random()-.5)*pp*.5:0;pts.push((A[0]+(T[0]-A[0])*f+jx)+","+(A[1]+(T[1]-A[1])*f+jy))}sv.innerHTML='<polyline points="'+pts.join(" ")+'" fill="none" stroke="#8fd3ff" stroke-width="2.5" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px #8fd3ff)"/>';L.appendChild(sv);sv.animate([{opacity:1},{opacity:0}],{duration:240,fill:"forwards"});setTimeout(()=>sv.remove(),320)}
+else if(K=="zap"){const sv=document.createElementNS("http://www.w3.org/2000/svg","svg");sv.setAttribute("style","position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible");let pts=[];for(let i=0;i<=7;i++){const f=i/7,jx=i&&i<7?(NR()-.5)*pp*.5:0,jy=i&&i<7?(NR()-.5)*pp*.5:0;pts.push((A[0]+(T[0]-A[0])*f+jx)+","+(A[1]+(T[1]-A[1])*f+jy))}sv.innerHTML='<polyline points="'+pts.join(" ")+'" fill="none" stroke="#8fd3ff" stroke-width="2.5" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px #8fd3ff)"/>';L.appendChild(sv);sv.animate([{opacity:1},{opacity:0}],{duration:240,fill:"forwards"});setTimeout(()=>sv.remove(),320)}
 else if(K=="howl"){const el=mk("","width:"+pp+"px;height:"+pp+"px;border:3px solid #c9962b;border-radius:50%;box-sizing:border-box;",A[0],A[1],420);an(el,[{opacity:.9,transform:"translate(-50%,-50%) scale(.3)"},{opacity:0,transform:"translate(-50%,-50%) scale(2.6)"}],420)}
 else{const gl=K=="bow"?'<span style="display:inline-block;transform:rotate('+ang+'deg)">➳</span>':K=="fire"?"🔥":"●",col=K=="spit"?"#7ddc4f":K=="poison"?"#a24bd6":K=="bow"?"#c9a66b":"inherit",el=mk(gl,"font-size:"+(K=="fire"?18:K=="bow"?20:13)+"px;color:"+col+";",A[0],A[1],dur);const mid=[(A[0]+T[0])/2,(A[1]+T[1])/2-(K=="spit"||K=="poison"||K=="fire"?pp*.5:0)];el.animate([{left:A[0]+"px",top:A[1]+"px"},{left:mid[0]+"px",top:mid[1]+"px"},{left:T[0]+"px",top:T[1]+"px"}],{duration:dur,easing:"linear",fill:"forwards"})}}
 setTimeout(()=>{if(o&&OS!==o)return;if(v.sup){burst(IM[K]||"✦",24,IC[K],T[0],T[1],520);if(K=="heal")fl("+","#3a9d5d",20,T[0],T[1]-pp*.3);ring(v.t,IC[K]||"#9ad",320);return}
@@ -1194,7 +1196,7 @@ function osched(){clearTimeout(OTM);if(OS&&OS.auto&&!OS.over&&!OS.busy)OTM=setTi
 function ostart(){aud();OPT=OPT.filter(id=>col.some(c=>c.id==id));const cards=OPT.map(id=>col.find(c=>c.id==id)).slice(0,20);
 if(!cards.length){$("onm").textContent="Pick at least one undead for the squad first.";return}
 $("onm").textContent="";clearTimeout(OTM);
-OS={T:genTerrain($("oar").value),R:{},dp:[...DP],db:[...DB],r:1,area:$("oar").value,len:+$("oln").value,rd:1,turn:1,loot:[],spec:[],auto:false,end:"",mode:0,lost:[],res:1,over:false,log:[],kills:0,sel:null,atk:null,insp:null,tp:"chest",ally:0,fresh:false,U:cards.map(mkUnit),N:[]};
+OS={T:genTerrain($("oar").value),R:{},dp:[...DP],db:[...DB],r:1,area:$("oar").value,len:+$("oln").value,rd:1,turn:1,loot:[],spec:[],auto:false,end:"",mode:0,lost:[],res:1,over:false,log:[],kills:0,sel:null,atk:null,insp:null,tp:"chest",ally:0,fresh:false,U:cards.map(c=>mkUnit(c)),N:[]};
 const tk0=new Set(),xs=rng(ONW).sort((p,q)=>Math.abs(p-4.5)-Math.abs(q-4.5));
 OS.U.forEach(u=>{const f=fp(u);u.w=f[0];u.h=f[1];let q=spot(u,tk0,rng(ONH).reverse(),xs);if(!q){u.w=u.h=1;q=spot(u,tk0,rng(ONH).reverse(),xs)||[0,0]}u.x=q[0];u.y=q[1];cellsOf(u).forEach(c=>tk0.add(c));u.mp=mvOf(u);u.act=false});
 inOS(()=>{ospawn();log("🌍 The squad deploys at the "+AR[OS.area].n+". "+AR[OS.area].lore.split(". ")[0]+".");log("⚠ Wave 1: "+OS.N.length+" enemies approach.");log("🗺 "+terrNote(OS))});ons()}
@@ -1542,6 +1544,6 @@ g("svFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new File
 g("svPaste").onclick=()=>{if(pend){try{KEYS.forEach(k=>{if(k in pend)localStorage.setItem(k,pend[k])});msg("Loaded. Reloading...");setTimeout(()=>location.reload(),300)}catch(e){msg("This browser blocked saving, so the import could not be applied.")}return}stage(g("svTxt").value)};
 g("svTxt").oninput=()=>{pend=null;const b=g("svPaste");b.textContent="Import pasted code";b.className="g"};
 })();
-</script><script src="i18n.js"></script></body></html>
+</script><script src="lang-mp.js"></script><script src="multiplayer.js"></script><script src="i18n.js"></script></body></html>
 
 </body></html>

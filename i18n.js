@@ -215,7 +215,7 @@ function set(l){
  if(lang==="en"||loaded[lang]){apply();return}
  if(loaded[lang]===1)return;loaded[lang]=1;
  const sc=document.createElement("script");sc.src="lang-"+lang+".js";
- sc.onload=()=>{if(window.UFLANG&&window.UFLANG[lang])add(lang,window.UFLANG[lang]);loaded[lang]=2;apply()};
+ sc.onload=()=>{if(window.UFLANG&&window.UFLANG[lang])add(lang,window.UFLANG[lang]);if(window.UFLANG_MP&&window.UFLANG_MP[lang])add(lang,window.UFLANG_MP[lang]);loaded[lang]=2;apply()};
  sc.onerror=()=>{loaded[lang]=2;apply()};
  apply();document.head.appendChild(sc)}
 let init="en";try{init=(JSON.parse(localStorage.getItem("ufset")||"{}").lang)||"en"}catch(e){}
